@@ -1,0 +1,56 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!--重要meta, 必须!-->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0,shrink-to-fit=no"/>
+    <title>地铁图</title>
+    <style>
+        .div-height{
+            border:1px solid #F00;
+            width:300px;
+            height:300px}
+    </style>
+</head>
+<body>
+<div id="mysubway"></div>
+
+<script src="https://webapi.amap.com/subway?v=1.0&amp;key=025c6e53a62578163305d5053644dda7&amp;callback=cbk"></script>
+<script src="https://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript">
+    //开启easy模式, 直接完成地铁图基本功能, 无需自己写交互
+	var cityList;
+
+    window.cbk = function(){
+		var url = location.search; //获取url中"?"符后的字串
+		   var theRequest = new Object();
+		   if (url.indexOf("?") != -1) {
+			  var str = url.substr(1);
+			  strs = str.split("&");
+			  for(var i = 0; i < strs.length; i ++) {
+				 theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+			  }
+		   }
+		console.log(theRequest);
+
+		var mysubway = subway("mysubway", {
+            easy: 1,
+			adcode: 4403
+        });
+    };
+
+
+</script>
+
+<select id="selectvalue">
+    <option value="4403">北京</option>
+    <option value="3100">深圳</option>
+    <option value="3100">上海</option>
+    <option value="3100">广州    theRequest.code
+    </option>
+</select>
+</body>
+</html>
+
+
+

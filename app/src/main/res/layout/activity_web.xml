@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="cn.navibeidou.beidou.WebActivity">
+
+
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:text="导航"
+        />
+    <RelativeLayout
+        android:id="@+id/ll_feedback"
+        android:visibility="gone"
+        android:layout_below="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/edit"
+            android:padding="10dp"
+            android:gravity="left|top"
+            android:textSize="12sp"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:inputType="text"
+            android:hint="@string/youradvice" />
+
+        <Button
+            android:layout_alignParentBottom="true"
+            android:id="@+id/btn_confirm"
+            android:background="@color/colorPeterRiver"
+            android:textColor="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/refirm" />
+    </RelativeLayout>
+</LinearLayout>

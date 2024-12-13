@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="cn.navibeidou.beidou">
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="false"
+        android:resizeable="true"
+        android:smallScreens="true" />
+
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission
+        android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- 地图SDK（包含其搜索功能）需要的基础权限 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+    <!--用于获取运营商信息，用于支持提供运营商信息相关的接口-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <!--用于访问wifi网络信息，wifi信息会用于进行网络定位-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+    <!--用于获取wifi的获取权限，wifi信息会用来进行网络定位-->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"
+        tools:ignore="ProtectedPermissions" />
+    <!--用于访问网络，网络定位需要上网-->
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
+
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+
+    <application
+        android:name=".ApplicationShared"
+        android:icon="@mipmap/icon_trans"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/icon_trans"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="dh2V6BNKX8GMaCmkwXyG8RW6ecii83cG" />
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="8a233e529a86ccff8f5d8b18f06f06d3">
+            <!--//开发者申请的key-->
+        </meta-data>
+
+        <service android:name="com.amap.api.location.APSService" />
+
+        <activity
+            android:name="com.amap.api.navi.AmapRouteActivity"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen"
+            android:configChanges="orientation|keyboardHidden|screenSize|navigation" />
+        <activity
+            android:name=".IndexActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".MainHomeActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity
+            android:name=".MapActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity
+            android:name=".SplashActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash"
+            android:windowSoftInputMode="stateHidden"></activity>
+        <activity
+            android:name=".InitActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".WebActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash"></activity>
+        <activity
+            android:name="cn.navibeidou.beidou.ProtocolActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash"></activity>
+        <activity
+            android:name="cn.navibeidou.beidou.GameActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash"></activity>
+        <activity
+            android:name=".PoiAroundSearchActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash"></activity>
+        <activity
+            android:name=".PoiKeywordSearchActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash"></activity>
+        <activity
+            android:name=".WeatherSearchActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash"></activity>
+        <activity
+            android:name=".JsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash" />
+        <activity
+            android:name=".QuanJingActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash"></activity>
+        <activity
+            android:name=".PanoDemoActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash">
+        </activity>
+        <activity
+            android:name="cn.navibeidou.beidou.indoor.PanoDemoCoordinate"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash">
+        </activity>
+        <activity
+            android:name=".navi.DriverListActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.Splash"/>
+
+        <activity
+            android:name=".navi.RestRouteShowActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.Splash"/>
+
+        <activity
+            android:name=".navi.WalkRouteCalculateActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.Splash"/>
+
+        <activity
+            android:name=".navi.RideRouteCalculateActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.Splash"/>
+
+        <activity
+            android:name=".navi.TruckRouteCalculateActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.Splash"/>
+
+        <!--穿山甲-->
+        <provider
+            android:name="com.bytedance.sdk.openadsdk.TTFileProvider"
+            android:authorities="${applicationId}.TTFileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <provider
+            android:name="com.bytedance.sdk.openadsdk.multipro.TTMultiProvider"
+            android:authorities="${applicationId}.TTMultiProvider"
+            android:exported="false" />
+
+        <!-- <meta-data
+             android:name="com.google.android.gms.ads.APPLICATION_ID"
+             android:value="ca-app-pub-2547387438729744~9596900917" />
+
+         &lt;!&ndash;This meta-data tag is required to use Google Play Services.&ndash;&gt;
+         <meta-data
+             android:name="com.google.android.gms.version"
+             android:value="12451000" />-->
+
+        <!--优量汇-->
+        <!--<meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-2547387438729744~9596900917" />
+
+        &lt;!&ndash;This meta-data tag is required to use Google Play Services.&ndash;&gt;
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="12451000" />
+
+        <provider
+            android:name="com.qq.e.comm.GDTFileProvider"
+            android:authorities="${applicationId}.gdt.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/gdt_file_path" />
+        </provider>
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />-->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+    </application>
+
+</manifest>

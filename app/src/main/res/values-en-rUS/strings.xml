@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">SatelliteNaviMap</string>
+	<string name="navi">导航</string>
+	<string name="track">轨迹查询</string>
+	<string name="no_result">对不起，没有搜索到相关数据！</string>
+	<string name="weather_live">实时</string>
+	<string name="weather_forecast">预报</string>
+	<string name="report_time">发布时间</string>
+	<string name="i">i</string>
+	<string name="tab_loc">BeiDouSatellite</string>
+	<string name="tab_option">MyNavigation</string>
+	<string name="find">Find</string>
+	<string name="weather">Weather</string>
+	<string name="road">Road</string>
+	<string name="inputsearchplace">Please Input Search Place</string>
+	<string name="beginsearch">Search</string>
+	<string name="nextpage">Next Page</string>
+	<string name="inputcity">Please Input City</string>
+	<string name="searchkey">Please Input Search Key</string>
+	<string name="search">Search</string>
+	<string name="currentnow">currentTime</string>
+	<string name="report">Forecast</string>
+	<string name="publish">PublishTime</string>
+	<string name="promot">Weather</string>
+	<string name="promotegift">CityWeather</string>
+	<string name="mypromote">MyCity</string>
+	<string name="account">Vedio</string>
+	<string name="loginAccount">PlayVedio</string>
+	<string name="registerAccount">RegisterAccount</string>
+	<string name="myAccount">MyVedio</string>
+	<string name="editTel">Please Input Tel</string>
+	<string name="editpw">Please Input Password</string>
+
+	<string name="zhen">zh_en</string>
+	<string name="quanjing">pano</string>
+	<string name="metro">metro</string>
+	<string name="north">north</string>
+	<string name="satellite">Satellite Beidou Gps Navi System</string>
+	<string name="satellitemap">satellite map</string>
+	<string name="normalmap">normal map</string>
+	<string name="busmap">bus map</string>
+	<string name="serviceprotocol">service protocol</string>
+	<string name="quanjing_left">panorama map</string>
+	<string name="weather_left">gps weather</string>
+	<string name="yinsipolicyprotocol">privacy protocol</string>
+	<string name="userfeedback">user feedback</string>
+	<string name="maptype">satellite map type</string>
+	<string name="welcomeuse">Welcome to beidou navi system</string>
+	<string name="youradvice">submit your advice</string>
+	<string name="refirm">submit</string>
+	<string name="thankyou">thanks!</string>
+	<string name="welcometouse">china professional satellite pano map</string>
+</resources>

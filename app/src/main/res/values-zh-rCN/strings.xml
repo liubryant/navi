@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">卫星导航地图</string>
+	<string name="navi">导航</string>
+	<string name="track">轨迹查询</string>
+	<string name="no_result">对不起，没有搜索到相关数据！</string>
+	<string name="weather_live">实时</string>
+	<string name="weather_forecast">预报</string>
+	<string name="report_time">发布时间</string>
+	<string name="i">i</string>
+	<string name="tab_loc">卫星定位</string>
+	<string name="tab_option">我的导航</string>
+	<string name="find">附近</string>
+	<string name="weather">天气</string>
+	<string name="road">路况</string>
+	<string name="inputsearchplace">请输入终点</string>
+	<string name="beginsearch">开始搜索</string>
+	<string name="nextpage">下一页</string>
+	<string name="inputcity">请输入城市</string>
+	<string name="searchkey">请输入搜索关键字</string>
+	<string name="search">搜索</string>
+	<string name="currentnow">实时</string>
+	<string name="report">预报</string>
+	<string name="publish">发布时间</string>
+	<string name="promot">城市</string>
+	<string name="promotegift">城市天气</string>
+	<string name="mypromote">我的城市</string>
+	<string name="account">试玩</string>
+	<string name="loginAccount">试玩视频</string>
+	<string name="registerAccount">注册账户</string>
+	<string name="myAccount">我的试玩</string>
+	<string name="editTel">请输入手机号</string>
+	<string name="editpw">请输入密码</string>
+	<string name="welcometouse">中国专业的卫星导航地图</string>
+</resources>

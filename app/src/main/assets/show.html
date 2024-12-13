@@ -1,0 +1,39 @@
+<!--<html>
+<head>
+    <meta charset="UTF-8">
+    &lt;!&ndash;重要meta, 必须!&ndash;&gt;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0,shrink-to-fit=no"/>
+    <title>SUBWAY</title>
+</head>
+<body>
+<div id="mysubway"></div>
+
+<script src="https://webapi.amap.com/subway?v=1.0&amp;key=8a233e529a86ccff8f5d8b18f06f06d3&amp;callback=cbk"></script>
+<script type="text/javascript">
+    //开启easy模式, 直接完成地铁图基本功能, 无需自己写交互
+    window.cbk = function(){
+        var mysubway = subway("mysubway", {
+            easy: 1
+        });
+    };
+
+    function test(){
+              document.getElementById("p").innerHTML += " 你好！"
+          }
+</script>
+</body>
+</html>-->
+
+
+<html lang="zh-CN">
+<p id='p'>hello world</p>
+
+<script>
+        function test(){
+            document.getElementById("p").innerHTML += " 你好！"
+        }
+</script>
+
+<button onclick="justTest.hello('js调用安卓方法！')">调用安卓方法</button>
+
+</html>
