@@ -142,19 +142,19 @@ public class TruckRouteCalculateActivity extends BaseActivity {
                  */
                 switch (forbiddenInfo.forbiddenType) {
                     case NaviForbidType.FORBID_TURN_LEFT :
-                        Log.e(TAG, "当前路线有禁止左转");
+                        Log.d(TAG, "当前路线有禁止左转");
                         break;
                     case NaviForbidType.FORBID_TURN_RIGHT :
-                        Log.e(TAG, "当前路线有禁止右转");
+                        Log.d(TAG, "当前路线有禁止右转");
                         break;
                     case NaviForbidType.FORBID_TURN_LEFT_ROUND :
-                        Log.e(TAG, "当前路线有禁止左掉头");
+                        Log.d(TAG, "当前路线有禁止左掉头");
                         break;
                     case NaviForbidType.FORBID_TURN_RIGHT_ROUND :
-                        Log.e(TAG, "当前路线有禁止右掉头");
+                        Log.d(TAG, "当前路线有禁止右掉头");
                         break;
                     case NaviForbidType.FORBID_GO_STRAIGHT :
-                        Log.e(TAG, "当前路线有禁止直行");
+                        Log.d(TAG, "当前路线有禁止直行");
                         break;
                     default:
                 }

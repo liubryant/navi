@@ -82,7 +82,7 @@ public class MapFragment extends Fragment implements AMapLocationListener, Geoco
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("liuzheng", "fragment_map  onCreate");
+        Log.i("navi", "fragment_map  onCreate");
     }
 
     GeocodeSearch geocodeSearch;
@@ -148,7 +148,7 @@ public class MapFragment extends Fragment implements AMapLocationListener, Geoco
         });
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         initMap();
-        Log.i("liuzheng", "fragment_map  onCreateView");
+        Log.i("navi", "fragment_map  onCreateView");
         return view;
     }
 
@@ -283,7 +283,7 @@ public class MapFragment extends Fragment implements AMapLocationListener, Geoco
                     aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 17));
                 }
                 String time = TimeStringUtil.longToDate(amapLocation.getTime());
-                Log.i("liuzheng", "city  " + city + "  currentLat  " + currentLat + "  currentLon  " + currentLon + "  time  " + time);
+                Log.i("navi", "city  " + city + "  currentLat  " + currentLat + "  currentLon  " + currentLon + "  time  " + time);
             } else {
                 //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
                 Log.e("AmapError", "location Error, ErrCode:"

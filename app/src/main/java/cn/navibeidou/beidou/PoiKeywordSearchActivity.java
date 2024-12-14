@@ -76,7 +76,7 @@ public class PoiKeywordSearchActivity extends FragmentActivity implements
         latitude = (double) getIntent().getDoubleExtra("latitude", 22.586241);
         longitude = (double) getIntent().getDoubleExtra("longitude", 113.861147);
         city = getIntent().getStringExtra("city");
-        Log.i("liuzheng", "city  " + city + "  latitude  " + latitude + "  longitude  " + longitude);
+        Log.e("navi", "city  " + city + "  latitude  " + latitude + "  longitude  " + longitude);
         init();
     }
 

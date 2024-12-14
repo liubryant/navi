@@ -61,7 +61,7 @@ public class ApplicationShared extends Application {
             Toast.makeText(ApplicationShared.getInstance().getApplicationContext(), "BMapManager  初始化错误!",
                     Toast.LENGTH_LONG).show();
         }
-        Log.d("liuzheng", "initEngineManager");
+        Log.d("navi", "initEngineManager");
     }
 
 

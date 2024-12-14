@@ -64,7 +64,7 @@ public class CommonStartDialog {
             @Override
             public void onClick(View v) {
                 close();
-                Log.e("liuzheng", "初始化ttAd");
+                Log.d("navi", "初始化ttAd");
                 TTAdManagerHolder.init(context);
                 //初始化组件化基础库, 所有友盟业务SDK都必须调用此初始化接口。
                 UMConfigure.init(context, "6013dda26a2a470e8f97901a", "Umeng", UMConfigure.DEVICE_TYPE_PHONE, "");
@@ -154,11 +154,11 @@ public class CommonStartDialog {
             @Override
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    Log.i("liuzheng", "city  " + true);
+                    Log.i("navi", "city  " + true);
 
                     return true;
                 } else {
-                    Log.i("liuzheng", "city  " + false);
+                    Log.i("navi", "city  " + false);
 
                     return false; // 默认返回 false
                 }
@@ -170,7 +170,7 @@ public class CommonStartDialog {
 
     private void close() {
         if (dlg != null) {
-            Log.i("liuzheng", "city  " + "close");
+            Log.i("navi", "city  " + "close");
             dlg.cancel();
             dlg = null;
         }

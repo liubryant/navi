@@ -167,7 +167,7 @@ public class CheckPermissionsActivity extends Activity implements ActivityCompat
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             this.finish();
-            Log.e("liuzheng","退出permission index");
+            Log.d("navi","退出permission index");
 //            Intent intent = new Intent(CheckPermissionsActivity.this, MapActivity.class);
 //            startActivity(intent);
             return true;

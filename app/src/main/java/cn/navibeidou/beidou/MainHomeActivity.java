@@ -46,7 +46,7 @@ public class MainHomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        Log.i("liuzheng", "activity_home  onCreate");
+        Log.i("navi", "activity_home  onCreate");
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);

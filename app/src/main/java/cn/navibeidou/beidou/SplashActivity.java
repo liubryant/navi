@@ -53,7 +53,7 @@ public class SplashActivity extends Activity {
         // 设置锁屏下可展示，此配置仅限测试调试使用，正式代码慎用
         context = this;
         if (Constants.isCloseAd) {
-            Log.e("liuzheng", "close open ad");
+            Log.d("navi", "close open ad");
             mCodeId = "888888888";
         }
         UIUtils.setShowOnLocked(this);

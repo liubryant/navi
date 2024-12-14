@@ -54,7 +54,7 @@ public class JsActivity extends Activity {
         webView.evaluateJavascript("javascript:theRequest('" + 3100 + "'')", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                Log.d("liuzheng", "onReceiveValue  " + value);
+                Log.d("navi", "onReceiveValue  " + value);
             }
         });
         webView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.CLOSE);
