@@ -75,12 +75,12 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
         mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
 //        setTitleBar();
         cityIntent = getIntent().getStringExtra("city");
-        Log.i("liuzheng", "city  " + cityIntent);
+        Log.i("navi", "city  " + cityIntent);
 //        latitude = (double) getIntent().getDoubleExtra("latitude", 22.586241);
 //        longitude = (double) getIntent().getDoubleExtra("longitude", 113.861147);
         init();
         if (Constants.isCloseAd) {
-            Log.e("liuzheng", "close weather ad");
+            Log.e("navi", "close weather ad");
             mCodeId = "888888888";
         }
         loadExpressAd(mCodeId);
@@ -114,7 +114,7 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
 
     private boolean isLargeScreen() {
         boolean result = getPackageManager().hasSystemFeature("oplus.feature.largescreen");
-        Log.e("liuzheng", "isLargeScreen  " + result);
+        Log.e("navi", "isLargeScreen  " + result);
         return result;
 //        return true;
     }

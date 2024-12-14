@@ -63,7 +63,7 @@ public class ProtocolActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("FirstRun", 0);
                 Boolean first_run = sharedPreferences.getBoolean("First", true);
                 if (first_run) {
-                    Log.e("liuzheng","first_run value  "+first_run);
+                    Log.e("navi","first_run value  "+first_run);
                     finish();
                     Intent intent = new Intent(ProtocolActivity.this, InitActivity.class);
                     startActivity(intent);

@@ -146,7 +146,7 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
                 intentquan.putExtra("type", 1);
                 intentquan.putExtra("latitude", currentLat);
                 intentquan.putExtra("longitude", currentLon);
-                Log.i("liuzheng", "latitude  " + currentLat + "  longitude  " + currentLon);
+                Log.i("navi", "latitude  " + currentLat + "  longitude  " + currentLon);
                 startActivity(intentquan);
                 break;
             default:
@@ -245,7 +245,7 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
             mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
         }
         if (Constants.isCloseAd) {
-            Log.e("liuzheng", "close weather ad");
+            Log.e("navi", "close weather ad");
             Constants.STREAM_ID = "888888888";
         }
         loadExpressAd(Constants.STREAM_ID);
@@ -459,7 +459,7 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
 
     @Override
     public void onInitNaviFailure() {
-        Log.e("liuzheng", "onInitNaviFailure ");
+        Log.e("navi", "onInitNaviFailure ");
 
     }
 
@@ -473,25 +473,25 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
 
     @Override
     public void onArriveDestination(boolean b) {
-        Log.e("liuzheng", "onArriveDestination ");
+        Log.e("navi", "onArriveDestination ");
 
     }
 
     @Override
     public void onStartNavi(int i) {
-        Log.e("liuzheng", "onStartNavi ");
+        Log.e("navi", "onStartNavi ");
 
     }
 
     @Override
     public void onCalculateRouteSuccess(int[] ints) {
-        Log.e("liuzheng", "onCalculateRouteSuccess ");
+        Log.e("navi", "onCalculateRouteSuccess ");
 
     }
 
     @Override
     public void onCalculateRouteFailure(int i) {
-        Log.e("liuzheng", "onCalculateRouteFailure ");
+        Log.e("navi", "onCalculateRouteFailure ");
 
     }
 
@@ -501,13 +501,13 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
 
     @Override
     public void onReCalculateRoute(int i) {
-        Log.e("liuzheng", "onReCalculateRoute ");
+        Log.e("navi", "onReCalculateRoute ");
 
     }
 
     @Override
     public void onExitPage(int i) {
-        Log.e("liuzheng", "onExitPage fail: 退出页面");
+        Log.e("navi", "onExitPage fail: 退出页面");
 
     }
 
@@ -549,7 +549,7 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
 
     @Override
     public void onBroadcastModeChanged(int i) {
-        Log.e("liuzheng", "onBroadcastModeChanged ");
+        Log.e("navi", "onBroadcastModeChanged ");
 
     }
 

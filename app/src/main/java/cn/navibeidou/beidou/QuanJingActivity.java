@@ -73,7 +73,7 @@ public class QuanJingActivity extends Activity {
         if (intent != null) {
             double currentLat = intent.getDoubleExtra("latitude", 0);
             double currentLon = intent.getDoubleExtra("longitude", 0);
-            Log.i("liuzheng", "quanjing  currentLat  " + currentLat + "  currentLon  " + currentLon);
+            Log.i("navi", "quanjing  currentLat  " + currentLat + "  currentLon  " + currentLon);
             // 原始点经纬度
             Point sourcePoint =
                     new Point(currentLat, currentLon);
@@ -83,7 +83,7 @@ public class QuanJingActivity extends Activity {
             //测试经纬度
 //            latitude = 23.0012;
 //            longitude = 123.0012;
-            Log.i("liuzheng", "quanjing  latitude  " + latitude + "  longitude  " + longitude);
+            Log.i("navi", "quanjing  latitude  " + latitude + "  longitude  " + longitude);
             testPanoByType(intent.getIntExtra("type", -1));
         }
     }
