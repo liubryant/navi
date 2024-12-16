@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:background="@drawable/btn_home_bg"
     android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="280dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_margin="10dp"
         android:background="@drawable/btn_home_bg"
         android:orientation="vertical">
@@ -23,9 +27,9 @@
         <TextView
             android:id="@+id/tv_policy"
             android:layout_width="fill_parent"
-            android:layout_height="200dp"
+            android:layout_height="142dp"
             android:text="@string/yinsipolicy"
-            android:textColor="#000000"
+            android:textColor="#999999"
             android:textSize="12sp" />
 
         <RelativeLayout
@@ -36,7 +40,7 @@
             <Button
                 android:id="@+id/btn_disagree"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="38dp"
                 android:layout_marginLeft="20dp"
                 android:background="@drawable/button_backgroud"
                 android:text="暂不使用"
@@ -46,11 +50,11 @@
                 android:id="@+id/btn_agree"
                 android:layout_alignParentRight="true"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="38dp"
                 android:layout_marginRight="20dp"
                 android:background="@drawable/button_backgroud"
                 android:text="同意"
                 android:textColor="@color/white" />
         </RelativeLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.cardview.widget.CardView>

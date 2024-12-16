@@ -59,6 +59,17 @@
         <service android:name="com.amap.api.location.APSService" />
 
         <activity
+            android:name=".InitActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Launcher"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name="com.amap.api.navi.AmapRouteActivity"
             android:launchMode="singleInstance"
             android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen"
@@ -85,16 +96,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Splash"
             android:windowSoftInputMode="stateHidden"></activity>
-        <activity
-            android:name=".InitActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Splash"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+
         <activity
             android:name=".WebActivity"
             android:screenOrientation="portrait"

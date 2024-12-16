@@ -125,7 +125,7 @@ public class InitActivity extends AppCompatActivity {
 
     private void firstRun() {
         SharedPreferences sharedPreferences = getSharedPreferences("FirstRun", 0);
-        Boolean first_run = sharedPreferences.getBoolean("First", true);
+        boolean first_run = sharedPreferences.getBoolean("First", true);
 //        first_run = true;
         if (first_run) {
             CommonStartDialog commonNum = new CommonStartDialog(mContext, true);

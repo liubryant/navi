@@ -21,6 +21,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
+
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.commonsdk.UMConfigure;
 
@@ -54,12 +56,11 @@ public class CommonStartDialog {
         dlg = new Dialog(context);
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        LinearLayout layout = (LinearLayout) inflater.inflate(
+        CardView layout = (CardView) inflater.inflate(
                 R.layout.common_start, null);
-        tv_policy = (TextView) layout.findViewById(R.id.tv_policy);
-        btn_agree = (Button) layout.findViewById(R.id.btn_agree);
-        btn_disagree = (Button) layout.findViewById(R.id.btn_disagree);
-
+        tv_policy = layout.findViewById(R.id.tv_policy);
+        btn_agree = layout.findViewById(R.id.btn_agree);
+        btn_disagree = layout.findViewById(R.id.btn_disagree);
         btn_agree.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,11 +73,7 @@ public class CommonStartDialog {
                 //tbs
                 //GDTADManager.getInstance().initWith(mContext, Constants.APPID);
                 //全景初始化
-
-
                 if (firstRun) {
-//                    SharedPreferences sharedPreferences = context.getSharedPreferences("FirstRun", 0);
-//                    sharedPreferences.edit().putBoolean("First", false).commit();
                     Intent intent = new Intent(context, SplashActivity.class);
                     context.startActivity(intent);
                 }
@@ -104,7 +101,6 @@ public class CommonStartDialog {
         int privacyPolicyStartIndex = 25; // “隐私政策”的起始位置，注意这里是示例，实际位置可能不同
         int privacyPolicyEndIndex = 31; // “隐私政策”的结束位置
 
-        // 将设置好的SpannableString设置到TextView上
         ClickableSpan userAgreementSpan = new ClickableSpan() {
             @Override
             public void onClick(View view) {

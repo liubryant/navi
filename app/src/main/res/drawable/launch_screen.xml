@@ -1,0 +1,10 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <color android:color="#FFFFFF" /> <!-- 背景颜色 -->
+    </item>
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/guide" /> <!-- 启动图片 -->
+    </item>
+</layer-list>
