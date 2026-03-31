@@ -25,6 +25,10 @@ public class TTAdManagerHolder {
         return TTAdSdk.getAdManager();
     }
 
+    public static boolean isInit() {
+        return sInit;
+    }
+
     public static void init(Context context) {
         doInit(context);
     }

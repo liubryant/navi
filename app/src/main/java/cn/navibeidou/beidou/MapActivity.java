@@ -162,8 +162,11 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         if (mContext instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) mContext;
         }
-        TTAdManagerHolder.get().requestPermissionIfNecessary(this);
-        execAd();
+        if (TTAdManagerHolder.isInit()) {
+            execAd();
+        } else {
+            Log.d("navi", "TTAdSdk 未初始化，跳过广告SDK请求与加载");
+        }
     }
 
     private void privacyCompliance() {

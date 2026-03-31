@@ -31,7 +31,17 @@
             android:text="@string/yinsipolicy"
             android:textColor="#999999"
             android:textSize="12sp" />
-
+        <CheckBox
+            android:id="@+id/cb_agreement"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:layout_marginTop="15dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:text="我已阅读并同意《用户协议》和《隐私政策》"
+            android:textColor="#333333"
+            android:textSize="10sp" />
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,7 +53,7 @@
                 android:layout_height="38dp"
                 android:layout_marginLeft="20dp"
                 android:background="@drawable/button_backgroud"
-                android:text="暂不使用"
+                android:text="不同意"
                 android:textColor="@color/white" />
 
             <Button

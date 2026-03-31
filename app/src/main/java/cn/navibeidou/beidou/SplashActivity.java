@@ -38,6 +38,7 @@ public class SplashActivity extends Activity {
     //是否强制跳转到主页面
     private boolean mForceGoMain;
     private Context context;
+    private boolean skipAdOnFirstAgree;
 
     //开屏Ad加载超时时间,建议大于3000,这里为了冷启动第一次加载到Ad并且展示,示例设置了3000ms
     private static final int AD_TIME_OUT = 3000;
@@ -52,6 +53,11 @@ public class SplashActivity extends Activity {
         super.onCreate(savedInstanceState);
         // 设置锁屏下可展示，此配置仅限测试调试使用，正式代码慎用
         context = this;
+        skipAdOnFirstAgree = getIntent().getBooleanExtra("skip_ad_on_first_agree", false);
+        if (skipAdOnFirstAgree) {
+            goToMainActivity();
+            return;
+        }
         if (Constants.isCloseAd) {
             Log.d("navi", "close open ad");
             mCodeId = "888888888";

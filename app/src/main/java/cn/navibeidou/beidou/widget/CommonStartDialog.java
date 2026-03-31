@@ -18,8 +18,10 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 
@@ -29,7 +31,6 @@ import com.umeng.commonsdk.UMConfigure;
 import cn.navibeidou.beidou.ProtocolActivity;
 import cn.navibeidou.beidou.R;
 import cn.navibeidou.beidou.SplashActivity;
-import cn.navibeidou.beidou.toutiao.config.TTAdManagerHolder;
 
 /**
  * author : Stanley
@@ -45,6 +46,7 @@ public class CommonStartDialog {
     private Boolean firstRun;
     private TextView tv_policy;
     private Button btn_agree, btn_disagree;
+    private CheckBox cb_agreement;
 
     public CommonStartDialog(Context context, Boolean firstRun) {
         this.context = context;
@@ -61,12 +63,15 @@ public class CommonStartDialog {
         tv_policy = layout.findViewById(R.id.tv_policy);
         btn_agree = layout.findViewById(R.id.btn_agree);
         btn_disagree = layout.findViewById(R.id.btn_disagree);
+        cb_agreement = layout.findViewById(R.id.cb_agreement);
         btn_agree.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (cb_agreement != null && !cb_agreement.isChecked()) {
+                    Toast.makeText(context, "请先阅读并勾选同意《用户协议》和《隐私政策》", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 close();
-                Log.d("navi", "初始化ttAd");
-                TTAdManagerHolder.init(context);
                 //初始化组件化基础库, 所有友盟业务SDK都必须调用此初始化接口。
                 UMConfigure.init(context, "6013dda26a2a470e8f97901a", "Umeng", UMConfigure.DEVICE_TYPE_PHONE, "");
                 MobclickAgent.setPageCollectionMode(MobclickAgent.PageMode.AUTO);
@@ -74,7 +79,10 @@ public class CommonStartDialog {
                 //GDTADManager.getInstance().initWith(mContext, Constants.APPID);
                 //全景初始化
                 if (firstRun) {
+                    SharedPreferences sharedPreferences = context.getSharedPreferences("FirstRun", 0);
+                    sharedPreferences.edit().putBoolean("First", false).commit();
                     Intent intent = new Intent(context, SplashActivity.class);
+                    intent.putExtra("skip_ad_on_first_agree", true);
                     context.startActivity(intent);
                 }
             }
@@ -91,15 +99,11 @@ public class CommonStartDialog {
         //
         SpannableString spannableString = new SpannableString(context.getString(R.string.yinsipolicy));
 
-        // 设置用户协议的高亮颜色
-//        ForegroundColorSpan userAgreementSpan = new ClickableSpan(Color.BLUE); // 例如，蓝色高亮
-        int userAgreementStartIndex = 18; // “用户协议”的起始位置
-        int userAgreementEndIndex = 24; // “用户协议”的结束位置
+        int userAgreementStartIndex = context.getString(R.string.yinsipolicy).indexOf("用户协议");
+        int userAgreementEndIndex = userAgreementStartIndex >= 0 ? userAgreementStartIndex + "用户协议".length() : -1;
 
-        // 设置隐私政策的高亮颜色
-//        ForegroundColorSpan privacyPolicySpan = new ForegroundColorSpan(Color.RED); // 例如，红色高亮
-        int privacyPolicyStartIndex = 25; // “隐私政策”的起始位置，注意这里是示例，实际位置可能不同
-        int privacyPolicyEndIndex = 31; // “隐私政策”的结束位置
+        int privacyPolicyStartIndex = context.getString(R.string.yinsipolicy).indexOf("隐私政策");
+        int privacyPolicyEndIndex = privacyPolicyStartIndex >= 0 ? privacyPolicyStartIndex + "隐私政策".length() : -1;
 
         ClickableSpan userAgreementSpan = new ClickableSpan() {
             @Override
@@ -136,8 +140,12 @@ public class CommonStartDialog {
                 ds.setUnderlineText(false); // 去除下划线
             }
         };
-        spannableString.setSpan(userAgreementSpan, userAgreementStartIndex, userAgreementEndIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannableString.setSpan(privacyPolicySpan, privacyPolicyStartIndex, privacyPolicyEndIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if (userAgreementStartIndex >= 0 && userAgreementEndIndex > userAgreementStartIndex) {
+            spannableString.setSpan(userAgreementSpan, userAgreementStartIndex, userAgreementEndIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        if (privacyPolicyStartIndex >= 0 && privacyPolicyEndIndex > privacyPolicyStartIndex) {
+            spannableString.setSpan(privacyPolicySpan, privacyPolicyStartIndex, privacyPolicyEndIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
 
         //
         tv_policy.setText(spannableString);
