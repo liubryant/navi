@@ -55,7 +55,8 @@ public class SplashActivity extends Activity {
         context = this;
         skipAdOnFirstAgree = getIntent().getBooleanExtra("skip_ad_on_first_agree", false);
         if (skipAdOnFirstAgree) {
-            goToMainActivity();
+            openMainActivity();
+            finish();
             return;
         }
         if (Constants.isCloseAd) {
@@ -265,10 +266,24 @@ public class SplashActivity extends Activity {
             intent.putExtra("horizontal_rit", Constants.INTERACTION_ID);
             intent.putExtra("vertical_rit", Constants.INTERACTION_ID);
             intent.putExtra("is_interaction", true);
-            startActivity(intent);
-            mSplashContainer.removeAllViews();
-            this.finish();
+            openMainActivity(intent);
         }
+    }
+
+    private void openMainActivity() {
+        Intent intent = new Intent(SplashActivity.this, MapActivity.class);
+        intent.putExtra("horizontal_rit", Constants.INTERACTION_ID);
+        intent.putExtra("vertical_rit", Constants.INTERACTION_ID);
+        intent.putExtra("is_interaction", true);
+        openMainActivity(intent);
+    }
+
+    private void openMainActivity(Intent intent) {
+        startActivity(intent);
+        if (mSplashContainer != null) {
+            mSplashContainer.removeAllViews();
+        }
+        finish();
     }
 
     private void showToast(String msg) {

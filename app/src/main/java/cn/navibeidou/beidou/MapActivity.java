@@ -67,7 +67,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import cn.navibeidou.beidou.Util.Constants;
-import cn.navibeidou.beidou.Util.DeviceUtil;
 import cn.navibeidou.beidou.Util.TimeStringUtil;
 import cn.navibeidou.beidou.toutiao.DislikeDialog;
 import cn.navibeidou.beidou.toutiao.config.TTAdManagerHolder;
@@ -84,7 +83,6 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     private String mVerticalCodeId;
     DrawerLayout drawerLayout;
     private AdLoadListener mAdLoadListener;
-    Boolean first_run = true;
     ActionBarDrawerToggle toggle;
     private TTNativeExpressAd mTTAd;
     //    private FrameLayout mBannerContainer;
@@ -301,8 +299,6 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         ll_service.setOnClickListener(this);
         ll_yinsi.setOnClickListener(this);
         ll_feedback.setOnClickListener(this);
-        SharedPreferences sharedPreferences = getSharedPreferences("FirstRun", 0);
-        first_run = sharedPreferences.getBoolean("First", true);
     }
 
     private void initSlide() {
@@ -347,23 +343,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         if (mTTAdNative != null) {
             mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
         }
-        //step3:可选，强烈建议在合适的时机调用):申请部分权限，如read_phone_state,防止获取不了imei时候，下载类Ad没有填充的问题。
-        SharedPreferences sharedPreferences = getSharedPreferences("FirstRun", 0);
-        //获取读取电话权限，先改成获取定位
-        //修改成了putBoolean("First", false)表示第一次启动
-        if (!DeviceUtil.checkPermission(this, "android.permission.READ_PHONE_STATE")
-                && sharedPreferences.getBoolean("First", true)) {
-            sharedPreferences.edit().putBoolean("First", false).commit();
-            //samsung没有走这里
-            Log.d("navi", "First value " + sharedPreferences.getBoolean("First", true) + " FirstRun value " + sharedPreferences.getBoolean("FirstRun", true));
-        } else {
-        }
-
-        if (sharedPreferences.getBoolean("First", true)) {
-            sharedPreferences.edit().putBoolean("First", false).commit();
-            Log.d("navi", "hand edit First value " + sharedPreferences.getBoolean("First", true)
-                    + " FirstRun value " + sharedPreferences.getBoolean("FirstRun", true));
-        }
+        // 不在启动页或首页初始化阶段主动申请电话权限。
+        // 广告 SDK 在缺少 READ_PHONE_STATE 时仍可工作，只是可能影响部分广告填充，
+        // 因此权限申请应延后到用户实际触发相关业务功能时再进行。
     }
 
     public static MapFragment newInstance(String param1, String param2) {

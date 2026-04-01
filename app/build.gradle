@@ -36,7 +36,7 @@ android {
         applicationId "cn.navibeidou.beidou"
         minSdkVersion 29
         targetSdkVersion 33
-        versionCode 36
+        versionCode 37
         versionName '3.6.0'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
