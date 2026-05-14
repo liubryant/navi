@@ -83,7 +83,7 @@ public class QuanJingActivity extends Activity {
             //测试经纬度
 //            latitude = 23.0012;
 //            longitude = 123.0012;
-            Log.i("navi", "quanjing  latitude  " + latitude + "  longitude  " + longitude);
+            Log.e("navi", "quanjing  latitude  " + latitude + "  longitude  " + longitude);
             testPanoByType(intent.getIntExtra("type", -1));
         }
     }
@@ -304,7 +304,7 @@ public class QuanJingActivity extends Activity {
 //            double lat = 39.91403075654526;
 //            double lon = 116.40391285827147;
             //侨鸿盛位置
-            Log.e("liu", "进入卫星地图坐标全景lat" + baidulat + "  lon  " + baidulon);
+            Log.d("liu", "进入卫星地图坐标全景lat" + baidulat + "  lon  " + baidulon);
             double lat = 22.59244047344863;
 //            double lon = 113.86765681704155;
             double lon = 130.86765681704155;
@@ -452,18 +452,18 @@ public class QuanJingActivity extends Activity {
                 PanoramaRequest panoramaRequest = PanoramaRequest.getInstance(QuanJingActivity.this);
 
                 String pid = "01002200001307201550572285B";
-                Log.e(LTAG, "PanoramaRecommendInfo");
+                Log.d(LTAG, "PanoramaRecommendInfo");
                 Log.i(LTAG, panoramaRequest.getPanoramaRecommendInfo(pid).toString());
 
                 String iid = "978602fdf6c5856bddee8b62";
-                Log.e(LTAG, "PanoramaByIIdWithJson");
+                Log.d(LTAG, "PanoramaByIIdWithJson");
                 Log.i(LTAG, panoramaRequest.getPanoramaByIIdWithJson(iid).toString());
 
                 // 通过卫星地图经纬度坐标获取当前位置相关全景信息，包括是否有外景，外景PID，外景名称等
                 double lat = 40.029233;
                 double lon = 116.32085;
                 BaiduPanoData mPanoDataWithLatLon = panoramaRequest.getPanoramaInfoByLatLon(lon, lat);
-                Log.e(LTAG, "PanoDataWithLatLon");
+                Log.d(LTAG, "PanoDataWithLatLon");
                 Log.i(LTAG, mPanoDataWithLatLon.getDescription());
 
                 // 通过卫星地图墨卡托坐标获取当前位置相关全景信息，包括是否有外景，外景PID，外景名称等
@@ -471,13 +471,13 @@ public class QuanJingActivity extends Activity {
                 int y = 4842480;
                 BaiduPanoData mPanoDataWithXy = panoramaRequest.getPanoramaInfoByMercator(x, y);
 
-                Log.e(LTAG, "PanoDataWithXy");
+                Log.d(LTAG, "PanoDataWithXy");
                 Log.i(LTAG, mPanoDataWithXy.getDescription());
 
                 // 通过卫星地图地图uid获取该poi下的全景描述信息，以此来判断此UID下是否有内景及外景
                 String uid = "bff8fa7deabc06b9c9213da4";
                 BaiduPoiPanoData poiPanoData = panoramaRequest.getPanoramaInfoByUid(uid);
-                Log.e(LTAG, "poiPanoData");
+                Log.d(LTAG, "poiPanoData");
                 Log.i(LTAG, poiPanoData.getDescription());
             }
         }).start();

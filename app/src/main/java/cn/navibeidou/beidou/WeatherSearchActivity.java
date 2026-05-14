@@ -80,7 +80,7 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
 //        longitude = (double) getIntent().getDoubleExtra("longitude", 113.861147);
         init();
         if (Constants.isCloseAd) {
-            Log.e("navi", "close weather ad");
+            Log.d("navi", "close weather ad");
             mCodeId = "888888888";
         }
         loadExpressAd(mCodeId);
@@ -114,7 +114,7 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
 
     private boolean isLargeScreen() {
         boolean result = getPackageManager().hasSystemFeature("oplus.feature.largescreen");
-        Log.e("navi", "isLargeScreen  " + result);
+        Log.d("navi", "isLargeScreen  " + result);
         return result;
 //        return true;
     }
@@ -167,7 +167,7 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
             }
         } else {
 //            ToastUtil.showerror(WeatherSearchActivity.this, rCode);
-            Log.e("navi", rCode + "");
+            Log.d("navi", rCode + "");
         }
     }
 
@@ -305,13 +305,13 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
 
             @Override
             public void onRenderFail(View view, String msg, int code) {
-                Log.e("ExpressView", "render fail:" + (System.currentTimeMillis() - startTime));
+                Log.d("ExpressView", "render fail:" + (System.currentTimeMillis() - startTime));
 //                TToast.show(mContext, msg + " code:" + code);
             }
 
             @Override
             public void onRenderSuccess(View view, float width, float height) {
-                Log.e("ExpressView", "render suc:" + (System.currentTimeMillis() - startTime));
+                Log.d("ExpressView", "render suc:" + (System.currentTimeMillis() - startTime));
                 //返回view的宽高 单位 dp
 //                TToast.show(mContext, "渲染成功");
                 mExpressContainer.removeAllViews();

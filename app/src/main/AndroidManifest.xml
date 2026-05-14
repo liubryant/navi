@@ -6,19 +6,12 @@
     <supports-screens
         android:anyDensity="true"
         android:largeScreens="true"
-        android:normalScreens="false"
+        android:normalScreens="true"
         android:resizeable="true"
         android:smallScreens="true" />
 
-    <!-- To auto-complete the email text field in the login form with the user's emails -->
-    <uses-permission
-        android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
-        tools:ignore="ProtectedPermissions" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-
     <!-- 地图SDK（包含其搜索功能）需要的基础权限 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
     <!--用于获取运营商信息，用于支持提供运营商信息相关的接口-->
@@ -27,18 +20,11 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
     <!--用于获取wifi的获取权限，wifi信息会用来进行网络定位-->
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"></uses-permission>
-    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"
-        tools:ignore="ProtectedPermissions" />
     <!--用于访问网络，网络定位需要上网-->
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
-
-    <uses-permission
-        android:name="android.permission.WRITE_SETTINGS"
-        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.GET_TASKS" />
 
     <application
         android:name=".ApplicationShared"
@@ -57,6 +43,17 @@
         </meta-data>
 
         <service android:name="com.amap.api.location.APSService" />
+
+        <activity
+            android:name=".InitActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Launcher"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="com.amap.api.navi.AmapRouteActivity"
@@ -85,16 +82,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Splash"
             android:windowSoftInputMode="stateHidden"></activity>
-        <activity
-            android:name=".InitActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Splash"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+
         <activity
             android:name=".WebActivity"
             android:screenOrientation="portrait"

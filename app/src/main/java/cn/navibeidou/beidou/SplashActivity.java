@@ -38,6 +38,7 @@ public class SplashActivity extends Activity {
     //是否强制跳转到主页面
     private boolean mForceGoMain;
     private Context context;
+    private boolean skipAdOnFirstAgree;
 
     //开屏Ad加载超时时间,建议大于3000,这里为了冷启动第一次加载到Ad并且展示,示例设置了3000ms
     private static final int AD_TIME_OUT = 3000;
@@ -52,8 +53,14 @@ public class SplashActivity extends Activity {
         super.onCreate(savedInstanceState);
         // 设置锁屏下可展示，此配置仅限测试调试使用，正式代码慎用
         context = this;
+        skipAdOnFirstAgree = getIntent().getBooleanExtra("skip_ad_on_first_agree", false);
+        if (skipAdOnFirstAgree) {
+            openMainActivity();
+            finish();
+            return;
+        }
         if (Constants.isCloseAd) {
-            Log.e("navi", "close open ad");
+            Log.d("navi", "close open ad");
             mCodeId = "888888888";
         }
         UIUtils.setShowOnLocked(this);
@@ -259,10 +266,24 @@ public class SplashActivity extends Activity {
             intent.putExtra("horizontal_rit", Constants.INTERACTION_ID);
             intent.putExtra("vertical_rit", Constants.INTERACTION_ID);
             intent.putExtra("is_interaction", true);
-            startActivity(intent);
-            mSplashContainer.removeAllViews();
-            this.finish();
+            openMainActivity(intent);
         }
+    }
+
+    private void openMainActivity() {
+        Intent intent = new Intent(SplashActivity.this, MapActivity.class);
+        intent.putExtra("horizontal_rit", Constants.INTERACTION_ID);
+        intent.putExtra("vertical_rit", Constants.INTERACTION_ID);
+        intent.putExtra("is_interaction", true);
+        openMainActivity(intent);
+    }
+
+    private void openMainActivity(Intent intent) {
+        startActivity(intent);
+        if (mSplashContainer != null) {
+            mSplashContainer.removeAllViews();
+        }
+        finish();
     }
 
     private void showToast(String msg) {

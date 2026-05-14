@@ -36,14 +36,15 @@ android {
         applicationId "cn.navibeidou.beidou"
         minSdkVersion 29
         targetSdkVersion 33
-        versionCode 35
-        versionName '3.5.0'
+        versionCode 37
+        versionName '3.6.0'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         ndk {
-//            abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-//            abiFilters "arm64-v8a"
-            abiFilters "armeabi"
+            // 仅适配64位机型（arm64）
+            abiFilters "arm64-v8a"
+//            abiFilters "armeabi"
+//            abiFilters "armeabi"
             //, 'x86_64'//只打包armeabi平台的，就算有其他文件夹也不管
         }
 
@@ -124,5 +125,7 @@ dependencies {
 //    implementation (name:'GDTSDK.unionNoPlugin.4.290.1160', ext:'aar')
 
 }
+
+
 
 

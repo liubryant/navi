@@ -55,11 +55,11 @@ public class LoggerInterceptor implements Interceptor
             Log.e(tag, "========response'log=======");
             Response.Builder builder = response.newBuilder();
             Response clone = builder.build();
-            Log.e(tag, "url : " + clone.request().url());
-            Log.e(tag, "code : " + clone.code());
-            Log.e(tag, "protocol : " + clone.protocol());
+            Log.d(tag, "url : " + clone.request().url());
+            Log.d(tag, "code : " + clone.code());
+            Log.d(tag, "protocol : " + clone.protocol());
             if (!TextUtils.isEmpty(clone.message()))
-                Log.e(tag, "message : " + clone.message());
+                Log.d(tag, "message : " + clone.message());
 
             if (showResponse)
             {
@@ -69,23 +69,23 @@ public class LoggerInterceptor implements Interceptor
                     MediaType mediaType = body.contentType();
                     if (mediaType != null)
                     {
-                        Log.e(tag, "responseBody's contentType : " + mediaType.toString());
+                        Log.d(tag, "responseBody's contentType : " + mediaType.toString());
                         if (isText(mediaType))
                         {
                             String resp = body.string();
-                            Log.e(tag, "responseBody's content : " + resp);
+                            Log.d(tag, "responseBody's content : " + resp);
 
                             body = ResponseBody.create(mediaType, resp);
                             return response.newBuilder().body(body).build();
                         } else
                         {
-                            Log.e(tag, "responseBody's content : " + " maybe [file part] , too large too print , ignored!");
+                            Log.d(tag, "responseBody's content : " + " maybe [file part] , too large too print , ignored!");
                         }
                     }
                 }
             }
 
-            Log.e(tag, "========response'log=======end");
+            Log.d(tag, "========response'log=======end");
         } catch (Exception e)
         {
 //            e.printStackTrace();
@@ -101,12 +101,12 @@ public class LoggerInterceptor implements Interceptor
             String url = request.url().toString();
             Headers headers = request.headers();
 
-            Log.e(tag, "========request'log=======");
-            Log.e(tag, "method : " + request.method());
-            Log.e(tag, "url : " + url);
+            Log.d(tag, "========request'log=======");
+            Log.d(tag, "method : " + request.method());
+            Log.d(tag, "url : " + url);
             if (headers != null && headers.size() > 0)
             {
-                Log.e(tag, "headers : " + headers.toString());
+                Log.d(tag, "headers : " + headers.toString());
             }
             RequestBody requestBody = request.body();
             if (requestBody != null)
@@ -114,17 +114,17 @@ public class LoggerInterceptor implements Interceptor
                 MediaType mediaType = requestBody.contentType();
                 if (mediaType != null)
                 {
-                    Log.e(tag, "requestBody's contentType : " + mediaType.toString());
+                    Log.d(tag, "requestBody's contentType : " + mediaType.toString());
                     if (isText(mediaType))
                     {
-                        Log.e(tag, "requestBody's content : " + bodyToString(request));
+                        Log.d(tag, "requestBody's content : " + bodyToString(request));
                     } else
                     {
-                        Log.e(tag, "requestBody's content : " + " maybe [file part] , too large too print , ignored!");
+                        Log.d(tag, "requestBody's content : " + " maybe [file part] , too large too print , ignored!");
                     }
                 }
             }
-            Log.e(tag, "========request'log=======end");
+            Log.d(tag, "========request'log=======end");
         } catch (Exception e)
         {
 //            e.printStackTrace();

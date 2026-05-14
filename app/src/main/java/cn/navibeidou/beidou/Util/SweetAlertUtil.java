@@ -30,7 +30,7 @@
 //
 //    //显示异常样式：
 //    public static void showError(String msg, String detail) {
-//        new SweetAlertDialog(ApplicationShared.getContext(), SweetAlertDialog.ERROR_TYPE)
+//        new SweetAlertDialog(ApplicationShared.getContext(), SweetAlertDiaLog.dRROR_TYPE)
 //                .setTitleText(msg)
 //                .setContentText(detail)
 //                .show();

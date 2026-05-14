@@ -49,12 +49,14 @@ public class InitActivity extends AppCompatActivity {
         // other close loadServerData打开goToMainActivity
         //oppo vivo xiaomi huawei other
         loadServerData();
+//        firstRun();
+//        goToMainActivity(lauch_ad_status);
     }
 
     private void goToMainActivity(int status) {
         if (true) {
             SpUtil.put(this, "launch_ad", 1);
-            Log.e("navi", "初始化ttAd");
+            Log.d("navi", "初始化ttAd");
 
             TTAdManagerHolder.init(mContext);
             Intent intent = new Intent(InitActivity.this, SplashActivity.class);
@@ -79,7 +81,7 @@ public class InitActivity extends AppCompatActivity {
         public void onResponse(String response, int id) {
             try {
                 String brand = Build.BRAND.toLowerCase();
-                Log.e("navi", "brand " + brand);
+                Log.d("navi", "brand " + brand);
                 JSONObject object = new JSONObject(response);
                 JSONObject data = object.getJSONObject("data");
                 boolean isPermissionReceiveAd = data.getBoolean("isPermissionReceiveAd");
@@ -88,24 +90,24 @@ public class InitActivity extends AppCompatActivity {
                 int versionCodeRedis = data.getInt("versionCode");
                 String adCloseType = data.getString("adCloseType");
                 int currentVersion = CommonUtil.getAppVersionCode(mContext);
-                Log.e("navi", "isPermissionReceiveAd  " + isPermissionReceiveAd
+                Log.d("navi", "isPermissionReceiveAd  " + isPermissionReceiveAd
                         + "  versionCodeRedis  " + versionCodeRedis + "  currentVersion  " + currentVersion+ "  adCloseType  " + adCloseType);
                 if (currentVersion >= versionCodeRedis) {//本地版本号大于等于服务器版本号
                     if (!isPermissionReceiveAd || adCloseType.contains(brand)) {
                         Constants.isCloseAd = true;//close ad
-                        Log.e("navi", "close ad  Constants.isCloseAd  " + Constants.isCloseAd);
+                        Log.d("navi", "close ad  Constants.isCloseAd  " + Constants.isCloseAd);
                     } else {
                         Constants.isCloseAd = false;
-                        Log.e("navi", "openad " + Constants.isCloseAd);
+                        Log.d("navi", "openad " + Constants.isCloseAd);
                     }
                 } else {
                     Constants.isCloseAd = false;
-                    Log.e("navi", "openad 222 " + Constants.isCloseAd);
+                    Log.d("navi", "openad 222 " + Constants.isCloseAd);
                 }
                 firstRun();
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.e("navi", "openad  exception" + e);
+                Log.d("navi", "openad  exception" + e);
                 firstRun();
 
             }
@@ -113,8 +115,9 @@ public class InitActivity extends AppCompatActivity {
 
         @Override
         public void onError(Call call, Exception e, int id) {
+//            goToMainActivity(lauch_ad_status);
             firstRun();
-            Log.e("navi", "close ad onErrorNoConnect  " + Constants.isCloseAd);
+            Log.d("navi", "close ad onErrorNoConnect  " + Constants.isCloseAd);
             e.printStackTrace();
         }
     };
@@ -122,14 +125,14 @@ public class InitActivity extends AppCompatActivity {
 
     private void firstRun() {
         SharedPreferences sharedPreferences = getSharedPreferences("FirstRun", 0);
-        Boolean first_run = sharedPreferences.getBoolean("First", true);
+        boolean first_run = sharedPreferences.getBoolean("First", true);
 //        first_run = true;
         if (first_run) {
             CommonStartDialog commonNum = new CommonStartDialog(mContext, true);
             commonNum.showSheet();
         } else {
             TTAdManagerHolder.init(mContext);
-            Log.e("navi", "初始化ttAd");
+            Log.d("navi", "初始化ttAd");
             //初始化组件化基础库, 所有友盟业务SDK都必须调用此初始化接口。
             UMConfigure.init(mContext, "6013dda26a2a470e8f97901a", "Umeng", UMConfigure.DEVICE_TYPE_PHONE, "");
             MobclickAgent.setPageCollectionMode(MobclickAgent.PageMode.AUTO);

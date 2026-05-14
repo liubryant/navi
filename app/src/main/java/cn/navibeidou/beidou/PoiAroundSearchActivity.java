@@ -78,7 +78,7 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
         latitude = (double) getIntent().getDoubleExtra("latitude", 22.586241);
         longitude = (double) getIntent().getDoubleExtra("longitude", 113.861147);
         city = getIntent().getStringExtra("city");
-        Log.i("navi", "city  " + city + "  latitude  " + latitude + "  longitude  " + longitude);
+        Log.e("navi", "city  " + city + "  latitude  " + latitude + "  longitude  " + longitude);
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
         mapview = (MapView) findViewById(R.id.mapView);
         mapview.onCreate(savedInstanceState);

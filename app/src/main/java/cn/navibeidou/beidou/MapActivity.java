@@ -67,7 +67,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import cn.navibeidou.beidou.Util.Constants;
-import cn.navibeidou.beidou.Util.DeviceUtil;
 import cn.navibeidou.beidou.Util.TimeStringUtil;
 import cn.navibeidou.beidou.toutiao.DislikeDialog;
 import cn.navibeidou.beidou.toutiao.config.TTAdManagerHolder;
@@ -84,7 +83,6 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     private String mVerticalCodeId;
     DrawerLayout drawerLayout;
     private AdLoadListener mAdLoadListener;
-    Boolean first_run = true;
     ActionBarDrawerToggle toggle;
     private TTNativeExpressAd mTTAd;
     //    private FrameLayout mBannerContainer;
@@ -162,8 +160,11 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         if (mContext instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) mContext;
         }
-        TTAdManagerHolder.get().requestPermissionIfNecessary(this);
-        execAd();
+        if (TTAdManagerHolder.isInit()) {
+            execAd();
+        } else {
+            Log.d("navi", "TTAdSdk 未初始化，跳过广告SDK请求与加载");
+        }
     }
 
     private void privacyCompliance() {
@@ -298,8 +299,6 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         ll_service.setOnClickListener(this);
         ll_yinsi.setOnClickListener(this);
         ll_feedback.setOnClickListener(this);
-        SharedPreferences sharedPreferences = getSharedPreferences("FirstRun", 0);
-        first_run = sharedPreferences.getBoolean("First", true);
     }
 
     private void initSlide() {
@@ -344,23 +343,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         if (mTTAdNative != null) {
             mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
         }
-        //step3:可选，强烈建议在合适的时机调用):申请部分权限，如read_phone_state,防止获取不了imei时候，下载类Ad没有填充的问题。
-        SharedPreferences sharedPreferences = getSharedPreferences("FirstRun", 0);
-        //获取读取电话权限，先改成获取定位
-        //修改成了putBoolean("First", false)表示第一次启动
-        if (!DeviceUtil.checkPermission(this, "android.permission.READ_PHONE_STATE")
-                && sharedPreferences.getBoolean("First", true)) {
-            sharedPreferences.edit().putBoolean("First", false).commit();
-            //samsung没有走这里
-            Log.d("navi", "First value " + sharedPreferences.getBoolean("First", true) + " FirstRun value " + sharedPreferences.getBoolean("FirstRun", true));
-        } else {
-        }
-
-        if (sharedPreferences.getBoolean("First", true)) {
-            sharedPreferences.edit().putBoolean("First", false).commit();
-            Log.d("navi", "hand edit First value " + sharedPreferences.getBoolean("First", true)
-                    + " FirstRun value " + sharedPreferences.getBoolean("FirstRun", true));
-        }
+        // 不在启动页或首页初始化阶段主动申请电话权限。
+        // 广告 SDK 在缺少 READ_PHONE_STATE 时仍可工作，只是可能影响部分广告填充，
+        // 因此权限申请应延后到用户实际触发相关业务功能时再进行。
     }
 
     public static MapFragment newInstance(String param1, String param2) {
@@ -492,7 +477,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                 tv_current_location.setText("经度: " + currentLat + "    纬度: " + currentLon + "\n位置: " + address);
             } else {
                 //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
-                Log.e("liuzheng AmapError", "location Error, ErrCode:"
+                Log.e("navi AmapError", "location Error, ErrCode:"
                         + amapLocation.getErrorCode() + ", errInfo:"
                         + amapLocation.getErrorInfo());
             }
@@ -726,7 +711,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                 intentquan.putExtra("type", 1);
                 intentquan.putExtra("latitude", currentLat);
                 intentquan.putExtra("longitude", currentLon);
-                Log.i("navi", "latitude  " + currentLat + "  longitude  " + currentLon);
+                Log.e("navi", "latitude  " + currentLat + "  longitude  " + currentLon);
                 startActivity(intentquan);
                 break;
             case R.id.tv_game:
@@ -790,7 +775,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
             mTTAdNative.loadBannerExpressAd(adSlot, new TTAdNative.NativeExpressAdListener() {
                 @Override
                 public void onError(int code, String message) {
-                    Log.e("liu", "load error : " + code + ", " + message);
+                    Log.d("navi", "load error : " + code + ", " + message);
                     mExpressContainer.removeAllViews();
                 }
 
@@ -803,7 +788,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                     mTTAd.setSlideIntervalTime(30 * 1000);
                     bindAdListener(mTTAd);
                     startTime = System.currentTimeMillis();
-                    Log.e("liu", "load success!");
+                    Log.d("navi", "load success!");
                     //加载Ad
                     onClickShowBanner();
                 }
@@ -815,7 +800,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         if (mTTAd != null) {
             mTTAd.render();
         } else {
-            Log.e("liu", "load Ad..");
+            Log.d("liu", "load Ad..");
         }
     }
 
@@ -832,12 +817,12 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
 
             @Override
             public void onRenderFail(View view, String msg, int code) {
-                Log.e("ExpressView", "render fail:" + (System.currentTimeMillis() - startTime));
+                Log.d("ExpressView", "render fail:" + (System.currentTimeMillis() - startTime));
             }
 
             @Override
             public void onRenderSuccess(View view, float width, float height) {
-                Log.e("ExpressView", "render suc:" + (System.currentTimeMillis() - startTime));
+                Log.d("ExpressView", "render suc:" + (System.currentTimeMillis() - startTime));
                 //返回view的宽高 单位 dp
                 mExpressContainer.removeAllViews();
                 mExpressContainer.addView(view);
@@ -969,13 +954,13 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
 
         @Override
         public void onError(int code, String message) {
-            Log.e(TAG, "Callback --> onError: " + code + ", " + message);
+            Log.d(TAG, "Callback --> onError: " + code + ", " + message);
         }
 
         @Override
 
         public void onFullScreenVideoAdLoad(TTFullScreenVideoAd ad) {
-            Log.e(TAG, "Callback --> onFullScreenVideoAdLoad");
+            Log.d(TAG, "Callback --> onFullScreenVideoAdLoad");
             handleAd(ad);
         }
 

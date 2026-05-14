@@ -140,60 +140,7 @@ public class SplashTbsActivity extends Activity implements SplashADListener, Vie
      * 注意：下面的`checkSelfPermission`和`requestPermissions`方法都是在Android6.0的SDK中增加的API，如果您的App还没有适配到Android6.0以上，则不需要调用这些方法，直接调用广点通SDK即可。
      *//*
 
-    @TargetApi(Build.VERSION_CODES.M)
-    private void checkAndRequestPermission() {
-        List<String> lackedPermission = new ArrayList<String>();
-        if (!(checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED)) {
-            lackedPermission.add(Manifest.permission.READ_PHONE_STATE);
-        }
 
-        if (!(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-            lackedPermission.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-
-        // 快手SDK所需相关权限，存储权限，此处配置作用于流量分配功能，关于流量分配，详情请咨询商务;如果您的APP不需要快手SDK的流量分配功能，则无需申请SD卡权限
-        if (!(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
-            lackedPermission.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-        }
-        if (!(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
-            lackedPermission.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-
-        // 如果需要的权限都已经有了，那么直接调用SDK
-        if (lackedPermission.size() == 0) {
-            fetchSplashAD(this, container, skipView, getPosId(), this, 0);
-        } else {
-            // 否则，建议请求所缺少的权限，在onRequestPermissionsResult中再看是否获得权限
-            String[] requestPermissions = new String[lackedPermission.size()];
-            lackedPermission.toArray(requestPermissions);
-            requestPermissions(requestPermissions, 1024);
-        }
-    }
-
-    private boolean hasAllPermissionsGranted(int[] grantResults) {
-        for (int grantResult : grantResults) {
-            if (grantResult == PackageManager.PERMISSION_DENIED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1024 && hasAllPermissionsGranted(grantResults)) {
-            fetchSplashAD(this, container, skipView, getPosId(), this, 0);
-        } else {
-//            Toast.makeText(this, "应用缺少必要的权限！请点击\"权限\"，打开所需要的权限。", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            intent.setData(Uri.parse("package:" + getPackageName()));
-            startActivity(intent);
-            finish();
-        }
-    }
-
-    */
 /**
      * 拉取开屏Ad，开屏Ad的构造方法有3种，详细说明请参考开发者文档。
      *
