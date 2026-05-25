@@ -43,9 +43,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.navibeidou.beidou.Util.Constants;
+import cn.navibeidou.beidou.Util.SpUtil;
 import cn.navibeidou.beidou.Util.TimeStringUtil;
 
 public class MapFragment extends Fragment implements AMapLocationListener, GeocodeSearch.OnGeocodeSearchListener {
+    private static final String KEY_LAST_LAT = "map_last_lat";
+    private static final String KEY_LAST_LON = "map_last_lon";
+    private static final String KEY_LAST_CITY = "map_last_city";
     private OnFragmentInteractionListener mListener;
     private static final int STROKE_COLOR = Color.argb(180, 3, 145, 255);
     private static final int FILL_COLOR = Color.argb(10, 0, 0, 180);
@@ -204,6 +208,7 @@ public class MapFragment extends Fragment implements AMapLocationListener, Geoco
             //初始化位置
 
             //只定位一次。
+            applyCachedLocation();
             myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE_NO_CENTER);
             myLocationStyle.showMyLocation(true);
             customLocationIcon(null);
@@ -229,6 +234,33 @@ public class MapFragment extends Fragment implements AMapLocationListener, Geoco
     /**
      * 设置自定义定位蓝点
      */
+    private void applyCachedLocation() {
+        if (mContext == null || aMap == null) {
+            return;
+        }
+        float cachedLat = (float) SpUtil.get(mContext, KEY_LAST_LAT, 0f);
+        float cachedLon = (float) SpUtil.get(mContext, KEY_LAST_LON, 0f);
+        String cachedCity = (String) SpUtil.get(mContext, KEY_LAST_CITY, "");
+        if (cachedLat == 0f || cachedLon == 0f) {
+            return;
+        }
+        currentLat = cachedLat;
+        currentLon = cachedLon;
+        city = cachedCity;
+        Constants.city = cachedCity;
+        userLatLng = new LatLng(cachedLat, cachedLon);
+        aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 17));
+    }
+
+    private void cacheLatestLocation(double lat, double lon, String currentCity) {
+        if (mContext == null) {
+            return;
+        }
+        SpUtil.put(mContext, KEY_LAST_LAT, (float) lat);
+        SpUtil.put(mContext, KEY_LAST_LON, (float) lon);
+        SpUtil.put(mContext, KEY_LAST_CITY, currentCity == null ? "" : currentCity);
+    }
+
     private void setupLocationStyle() {
         // 自定义系统定位蓝点
         myLocationStyle = new MyLocationStyle();
@@ -278,6 +310,7 @@ public class MapFragment extends Fragment implements AMapLocationListener, Geoco
                 Constants.city = city;
                 amapLocation.getAccuracy();//获取精度信息
                 userLatLng = new LatLng(currentLat, currentLon);
+                cacheLatestLocation(currentLat, currentLon, city);
                 if (firstMove) {
                     firstMove = false;
                     aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 17));
