@@ -2,6 +2,8 @@ package cn.navibeidou.beidou;
 
 import android.app.Activity;
 import android.content.Context;
+import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -62,6 +64,8 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
     private TTAdNative mTTAdNative;
     private TTNativeExpressAd mTTAd;
     private Context mContext;
+    private AudioManager mAudioManager;
+    private boolean mAdAudioMuted;
 
 //        private String mCodeId = "901121253";//测试code
     private String mCodeId = "945690844";
@@ -71,6 +75,7 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_activity);
         mContext = this;
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
         mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
 //        setTitleBar();
@@ -96,6 +101,15 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
     @Override
     protected void onResume() {
         super.onResume();
+        if (mTTAd != null) {
+            muteAdAudio();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        restoreAdAudio();
+        super.onStop();
     }
 
     private void init() {
@@ -280,6 +294,7 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
                     return;
                 }
                 mTTAd = ads.get(0);
+                muteAdAudio();
                 bindAdListener(mTTAd);
                 startTime = System.currentTimeMillis();
                 mTTAd.render();
@@ -290,6 +305,39 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
     private long startTime = 0;
 
     private boolean mHasShowDownloadActive = false;
+
+    private void muteAdAudio() {
+        if (mAudioManager == null || mAdAudioMuted) {
+            return;
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
+            } else {
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+            }
+            mAdAudioMuted = true;
+        } catch (Throwable throwable) {
+            Log.w("navi", "muteAdAudio fail", throwable);
+        }
+    }
+
+    private void restoreAdAudio() {
+        if (mAudioManager == null || !mAdAudioMuted) {
+            return;
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
+            } else {
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+            }
+        } catch (Throwable throwable) {
+            Log.w("navi", "restoreAdAudio fail", throwable);
+        } finally {
+            mAdAudioMuted = false;
+        }
+    }
 
     private void bindAdListener(TTNativeExpressAd ad) {
         ad.setExpressInteractionListener(new TTNativeExpressAd.ExpressAdInteractionListener() {
@@ -425,6 +473,7 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
 
     @Override
     public void onDestroy() {
+        restoreAdAudio();
         super.onDestroy();
         if (mTTAd != null) {
             mTTAd.destroy();

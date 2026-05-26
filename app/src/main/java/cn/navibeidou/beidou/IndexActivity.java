@@ -92,41 +92,29 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
         switch (v.getId()) {
             case R.id.btn_drive:
             case R.id.et_destination:
-                btn_drive.setBackgroundResource(R.drawable.button_backgroud);
-                btn_walk.setBackgroundResource(R.drawable.button_backgroud_grey);
-                btn_bike.setBackgroundResource(R.drawable.button_backgroud_grey);
-                btn_truck.setBackgroundResource(R.drawable.button_backgroud_grey);
                 naviType = 1;
+                updateModeButtons();
                 AmapNaviParams params = new AmapNaviParams(null, null, null, AmapNaviType.DRIVER);
                 params.setUseInnerVoice(true);
                 AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), params, IndexActivity.this);
                 break;
             case R.id.btn_walk:
-                btn_drive.setBackgroundResource(R.drawable.button_backgroud_grey);
-                btn_walk.setBackgroundResource(R.drawable.button_backgroud);
-                btn_bike.setBackgroundResource(R.drawable.button_backgroud_grey);
-                btn_truck.setBackgroundResource(R.drawable.button_backgroud_grey);
                 naviType = 2;
+                updateModeButtons();
                 AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(),
                         new AmapNaviParams(null, null, new Poi("故宫博物院", null, ""),
                                 AmapNaviType.WALK), IndexActivity.this);
                 break;
             case R.id.btn_bike:
-                btn_drive.setBackgroundResource(R.drawable.button_backgroud_grey);
-                btn_walk.setBackgroundResource(R.drawable.button_backgroud_grey);
-                btn_bike.setBackgroundResource(R.drawable.button_backgroud);
-                btn_truck.setBackgroundResource(R.drawable.button_backgroud_grey);
                 naviType = 3;
+                updateModeButtons();
                 AmapNaviParams params3 = new AmapNaviParams(null, null, null, AmapNaviType.RIDE);
                 params3.setUseInnerVoice(true);
                 AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), params3, IndexActivity.this);
                 break;
             case R.id.btn_truck:
-                btn_drive.setBackgroundResource(R.drawable.button_backgroud_grey);
-                btn_walk.setBackgroundResource(R.drawable.button_backgroud_grey);
-                btn_bike.setBackgroundResource(R.drawable.button_backgroud_grey);
-                btn_truck.setBackgroundResource(R.drawable.button_backgroud);
                 naviType = 4;
+                updateModeButtons();
                 AmapNaviParams params4 = new AmapNaviParams(null, null, null, AmapNaviType.DRIVER);
                 params4.setUseInnerVoice(true);
                 AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), params4, IndexActivity.this);
@@ -248,7 +236,23 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
             Log.d("navi", "close weather ad");
             Constants.STREAM_ID = "888888888";
         }
+        updateModeButtons();
         loadExpressAd(Constants.STREAM_ID);
+    }
+
+    private void updateModeButtons() {
+        updateModeButton(btn_drive, naviType == 1);
+        updateModeButton(btn_walk, naviType == 2);
+        updateModeButton(btn_bike, naviType == 3);
+        updateModeButton(btn_truck, naviType == 4);
+    }
+
+    private void updateModeButton(Button button, boolean selected) {
+        if (button == null) {
+            return;
+        }
+        button.setBackgroundResource(selected ? R.drawable.button_backgroud : R.drawable.button_backgroud_grey);
+        button.setTextColor(selected ? Color.WHITE : Color.parseColor("#4D6486"));
     }
 
     private TTAdNative mTTAdNative;
