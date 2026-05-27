@@ -10,109 +10,145 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- 输入区域卡片 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="60dp"
+            android:background="@drawable/input_card_bg"
+            android:elevation="4dp"
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
-            <ImageView
-                android:id="@+id/iv_arrow"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginLeft="20dp"
-                android:gravity="center"
-                android:src="@mipmap/arrow" />
-
-            <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_marginLeft="19dp"
-                android:gravity="center"
-                android:src="@mipmap/dot_green" />
-
-            <EditText
-                android:id="@+id/et_gps"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:background="@color/white"
-                android:focusable="false"
-                android:gravity="left"
-                android:text="我的位置"
-                android:textColor="@android:color/black"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_marginLeft="12dp"
-                android:gravity="center"
-                android:src="@mipmap/bg_dot" />
-
-            <ImageView
+            <!-- 我的位置行 -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="10dp"
-                android:layout_toLeftOf="@+id/plus"
-                android:background="@color/grey"
-                android:gravity="center" />
-
-            <ImageView
-                android:id="@+id/plus"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginRight="10dp"
-                android:layout_toLeftOf="@+id/change"
-                android:gravity="center"
-                android:src="@mipmap/plus" />
-
-            <ImageView
-                android:id="@+id/change"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="20dp"
-                android:gravity="center"
-                android:src="@mipmap/change_up" />
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/ll_destination"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_marginLeft="70dp"
-                android:gravity="center"
-                android:src="@mipmap/dot_red" />
-
-            <EditText
-                android:id="@+id/et_destination"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:background="@color/white"
-                android:focusable="false"
-                android:gravity="left"
-                android:hint="输入终点"
-                android:textColor="@android:color/black"
-                android:textSize="14sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:minHeight="36dp">
+
+                <ImageView
+                    android:id="@+id/iv_arrow"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:padding="2dp"
+                    android:src="@mipmap/arrow"
+                    android:tint="#666666" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginLeft="6dp"
+                    android:src="@mipmap/dot_green" />
+
+                <EditText
+                    android:id="@+id/et_gps"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:focusable="false"
+                    android:gravity="left|center_vertical"
+                    android:text="我的位置"
+                    android:textColor="#333333"
+                    android:textSize="15sp"
+                    android:padding="0dp" />
+            </LinearLayout>
+
+            <!-- 分隔线和中间按钮行 -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="0dp"
+                android:gravity="center_vertical"
+                android:minHeight="24dp">
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="20dp"
+                    android:visibility="gone"
+                    android:layout_marginLeft="13dp"
+                    android:background="#E0E0E0" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="32dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_toLeftOf="@+id/plus"
+                    android:background="#F0F0F0" />
+
+                <ImageView
+                    android:id="@+id/plus"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_toLeftOf="@+id/change"
+                    android:padding="6dp"
+                    android:src="@mipmap/plus"
+                    android:tint="#666666" />
+
+                <ImageView
+                    android:id="@+id/change"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="0dp"
+                    android:padding="6dp"
+                    android:src="@mipmap/change_up"
+                    android:tint="#666666" />
+            </RelativeLayout>
+
+            <!-- 输入终点行 -->
+            <LinearLayout
+                android:id="@+id/ll_destination"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:minHeight="36dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginLeft="32dp"
+                    android:src="@mipmap/dot_red" />
+
+                <EditText
+                    android:id="@+id/et_destination"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:focusable="false"
+                    android:gravity="left|center_vertical"
+                    android:hint="输入终点"
+                    android:textColor="#333333"
+                    android:textColorHint="#999999"
+                    android:textSize="15sp"
+                    android:padding="0dp" />
+            </LinearLayout>
         </LinearLayout>
+
+        <!-- 分隔线 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:visibility="gone"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="#E8E8E8" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -133,8 +169,8 @@
                 <Button
                     android:id="@+id/btn_drive"
                     android:layout_width="wrap_content"
-                    android:layout_height="70dp"
-                    android:padding="4dp"
+                    android:layout_height="80dp"
+                    android:padding="12dp"
                     android:background="@drawable/button_backgroud"
                     android:drawableTop="@drawable/amap_car"
                     android:gravity="center"
@@ -153,8 +189,8 @@
                 <Button
                     android:id="@+id/btn_walk"
                     android:layout_width="wrap_content"
-                    android:layout_height="70dp"
-                    android:padding="4dp"
+                    android:layout_height="80dp"
+                    android:padding="12dp"
                     android:layout_marginLeft="5dp"
                     android:background="@drawable/button_backgroud_grey"
                     android:drawableTop="@drawable/amap_man"
@@ -175,8 +211,8 @@
                 <Button
                     android:id="@+id/btn_bike"
                     android:layout_width="wrap_content"
-                    android:layout_height="70dp"
-                    android:padding="4dp"
+                    android:layout_height="80dp"
+                    android:padding="12dp"
                     android:layout_marginLeft="5dp"
                     android:background="@drawable/button_backgroud_grey"
                     android:drawableTop="@drawable/amap_ride"
@@ -198,8 +234,8 @@
                 <Button
                     android:id="@+id/btn_truck"
                     android:layout_width="wrap_content"
-                    android:layout_height="70dp"
-                    android:padding="4dp"
+                    android:layout_height="80dp"
+                    android:padding="12dp"
                     android:layout_marginLeft="5dp"
                     android:background="@drawable/button_backgroud_grey"
                     android:drawableTop="@drawable/amap_truck"
@@ -222,7 +258,7 @@
             <Button
                 android:id="@+id/btn_near"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="45dp"
                 android:layout_marginLeft="20dp"
                 android:layout_weight="1"
                 android:background="@drawable/button_backgroud"
@@ -234,7 +270,7 @@
             <Button
                 android:id="@+id/btn_navi"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="45dp"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
                 android:layout_weight="1"

@@ -39,8 +39,15 @@ import com.amap.api.services.poisearch.PoiSearch.SearchBound;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.navibeidou.beidou.Util.Constants;
 import cn.navibeidou.beidou.Util.ToastUtil;
 import cn.navibeidou.beidou.translucentparent.StatusNavUtils;
+import cn.navibeidou.beidou.toutiao.config.TTAdManagerHolder;
+
+import com.bytedance.sdk.openadsdk.AdSlot;
+import com.bytedance.sdk.openadsdk.TTAdConstant;
+import com.bytedance.sdk.openadsdk.TTAdNative;
+import com.bytedance.sdk.openadsdk.TTRewardVideoAd;
 
 /**
  * 介绍poi周边搜索功能
@@ -70,6 +77,9 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
     private EditText mSearchText;
     private double latitude, longitude;
     private String city;
+    private TTAdNative mTTAdNative;
+    private TTRewardVideoAd mRewardVideoAd;
+    private String mRewardVideoCodeId = "982599527";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +138,15 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
         mPoiName = (TextView) findViewById(R.id.poi_name);
         mPoiAddress = (TextView) findViewById(R.id.poi_address);
         mSearchText = (EditText) findViewById(R.id.input_edittext);
+
+        // 初始化广告SDK
+        if (mTTAdNative == null) {
+            mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
+            Log.d("naviad", "广告SDK初始化完成");
+        }
+
+        // 预加载激励视频广告
+        loadRewardVideoAd();
     }
     /**
      * 开始进行poi搜索
@@ -338,7 +357,10 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_search:
-                doSearchQuery();
+                // 点击搜索按钮，先播放激励视频
+                Log.d("naviad", "点击搜索按钮，准备播放激励视频");
+                showRewardVideoAd();
+                // 隐藏键盘
                 InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                 if (imm != null) {
                     imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(),
@@ -527,4 +549,109 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
         }
     }
 
+    /**
+     * 加载激励视频广告
+     */
+    private void loadRewardVideoAd() {
+        if (Constants.isCloseAd) {
+            Log.d("naviad", "广告已关闭，不加载激励视频");
+            return;
+        }
+
+        Log.d("naviad", "开始加载激励视频广告, codeId: " + mRewardVideoCodeId);
+        AdSlot adSlot = new AdSlot.Builder()
+                .setCodeId(mRewardVideoCodeId)
+                .setSupportDeepLink(true)
+                .setRewardName("金币") // 奖励名称
+                .setRewardAmount(10)   // 奖励数量
+                .setUserID("user_id_" + System.currentTimeMillis()) // 用户id
+                .setMediaExtra("media_extra") // 附加参数
+                .setOrientation(TTAdConstant.VERTICAL) // 竖屏
+                .build();
+
+        if (mTTAdNative != null) {
+            mTTAdNative.loadRewardVideoAd(adSlot, new TTAdNative.RewardVideoAdListener() {
+                @Override
+                public void onError(int code, String message) {
+                    Log.e("naviad", "激励视频加载失败 code: " + code + ", message: " + message);
+                    mRewardVideoAd = null;
+                }
+
+                @Override
+                public void onRewardVideoAdLoad(TTRewardVideoAd ad) {
+                    Log.d("naviad", "激励视频加载成功");
+                    mRewardVideoAd = ad;
+                    // 设置视频广告的监听
+                    mRewardVideoAd.setRewardAdInteractionListener(new TTRewardVideoAd.RewardAdInteractionListener() {
+                        @Override
+                        public void onAdShow() {
+                            Log.d("naviad", "激励视频开始播放");
+                        }
+
+                        @Override
+                        public void onAdVideoBarClick() {
+                            Log.d("naviad", "激励视频被点击");
+                        }
+
+                        @Override
+                        public void onAdClose() {
+                            Log.d("naviad", "激励视频关闭");
+                            // 视频关闭，重新加载下一次使用
+                            loadRewardVideoAd();
+                        }
+
+                        @Override
+                        public void onVideoComplete() {
+                            Log.d("naviad", "激励视频播放完成");
+                        }
+
+                        @Override
+                        public void onVideoError() {
+                            Log.e("naviad", "激励视频播放出错");
+                            // 播放出错，执行搜索
+                            doSearchQuery();
+                        }
+
+                        @Override
+                        public void onRewardVerify(boolean rewardVerify, int rewardAmount, String rewardName, int errorCode, String errorMsg) {
+                            Log.d("naviad", "激励视频奖励验证 rewardVerify: " + rewardVerify +
+                                    ", rewardAmount: " + rewardAmount + ", rewardName: " + rewardName);
+                            if (rewardVerify) {
+                                // 奖励验证成功，视频播放完整，执行搜索
+                                Log.d("naviad", "激励视频播放完整，执行POI搜索");
+                                doSearchQuery();
+                            } else {
+                                Log.w("naviad", "激励视频未完整播放，errorCode: " + errorCode + ", errorMsg: " + errorMsg);
+                            }
+                        }
+
+                        @Override
+                        public void onSkippedVideo() {
+                            Log.d("naviad", "激励视频被跳过");
+                        }
+                    });
+                }
+
+                @Override
+                public void onRewardVideoCached() {
+                    Log.d("naviad", "激励视频缓存成功");
+                }
+            });
+        } else {
+            Log.e("naviad", "mTTAdNative为空，无法加载激励视频");
+        }
+    }
+
+    /**
+     * 播放激励视频广告
+     */
+    private void showRewardVideoAd() {
+        if (mRewardVideoAd != null) {
+            Log.d("naviad", "播放激励视频广告");
+            mRewardVideoAd.showRewardVideoAd(PoiAroundSearchActivity.this);
+        } else {
+            Log.w("naviad", "激励视频未加载或加载失败，直接执行搜索");
+            doSearchQuery();
+        }
+    }
 }

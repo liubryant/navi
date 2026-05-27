@@ -317,8 +317,9 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
                 mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
             }
             mAdAudioMuted = true;
+            Log.d("naviad", "广告音频已静音");
         } catch (Throwable throwable) {
-            Log.w("navi", "muteAdAudio fail", throwable);
+            Log.w("naviad", "muteAdAudio fail", throwable);
         }
     }
 
@@ -332,8 +333,9 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
             } else {
                 mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
             }
+            Log.d("naviad", "广告音频已恢复");
         } catch (Throwable throwable) {
-            Log.w("navi", "restoreAdAudio fail", throwable);
+            Log.w("naviad", "restoreAdAudio fail", throwable);
         } finally {
             mAdAudioMuted = false;
         }

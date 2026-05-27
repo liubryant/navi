@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -160,6 +162,8 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index);
+        mContext = this;
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         isMap = getIntent().getBooleanExtra("isMap", false);
         currentLat = getIntent().getDoubleExtra("currentLat", 39.917337);
         currentLon = getIntent().getDoubleExtra("currentLon", 116.397056);
@@ -229,15 +233,24 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
 
         listView.setOnItemClickListener(mItemClickListener);
         mExpressContainer = (FrameLayout) findViewById(R.id.express_container);
-        if (mTTAdNative != null) {
+        Log.d("naviad", "初始化广告容器 mExpressContainer: " + mExpressContainer);
+
+        if (mTTAdNative == null) {
+            Log.d("naviad", "创建广告Native对象");
             mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
+            Log.d("naviad", "广告Native创建完成: " + mTTAdNative);
+        } else {
+            Log.d("naviad", "广告Native已存在: " + mTTAdNative);
         }
+
         if (Constants.isCloseAd) {
-            Log.d("navi", "close weather ad");
-            Constants.STREAM_ID = "888888888";
+            Log.d("naviad", "广告已关闭");
+            Constants.BANNER_ID = "888888888";
         }
+        Log.d("naviad", "广告位ID: " + Constants.BANNER_ID);
+
         updateModeButtons();
-        loadExpressAd(Constants.STREAM_ID);
+        loadExpressAd(Constants.BANNER_ID);
     }
 
     private void updateModeButtons() {
@@ -258,6 +271,9 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
     private TTAdNative mTTAdNative;
     private TTNativeExpressAd mTTAd;
     private FrameLayout mExpressContainer;
+    private Context mContext;
+    private AudioManager mAudioManager;
+    private boolean mAdAudioMuted;
 
     private boolean isLargeScreen() {
         boolean result = getPackageManager().hasSystemFeature("oplus.feature.largescreen");
@@ -267,6 +283,9 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
     @Override
     protected void onResume() {
         super.onResume();
+        if (mTTAd != null) {
+            muteAdAudio();
+        }
         //直接进导航
         /*if (isMap) {
             isMap = false;
@@ -277,6 +296,12 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
             isMap = true;
             finish();
         }*/
+    }
+
+    @Override
+    protected void onStop() {
+        restoreAdAudio();
+        super.onStop();
     }
 
     private static class CustomArrayAdapter extends ArrayAdapter<DemoDetails> {
@@ -593,38 +618,50 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
     }
 
     private void loadExpressAd(String codeId) {
+        Log.d("naviad", "开始加载Banner广告, codeId: " + codeId);
+        Log.d("naviad", "mExpressContainer: " + mExpressContainer);
+        Log.d("naviad", "mTTAdNative: " + mTTAdNative);
+
         mExpressContainer.removeAllViews();
-        float expressViewWidth = 350;
-        float expressViewHeight = 350;
-        if (isLargeScreen()) {
-            expressViewHeight = 300;
-        }
+        // Banner广告尺寸固定为 300x250
+        int expressViewWidth = 300;
+        int expressViewHeight = 250;
+        Log.d("naviad", "Banner广告尺寸 width: " + expressViewWidth + ", height: " + expressViewHeight);
+
         AdSlot adSlot = new AdSlot.Builder()
                 .setCodeId(codeId) //Ad位id
-                .setSupportDeepLink(true)
                 .setAdCount(1) //请求Ad数量为1到3条
                 .setExpressViewAcceptedSize(expressViewWidth, expressViewHeight) //期望模板Adview的size,单位dp
                 .build();
-        //step5:请求Ad，对请求回调的Ad作渲染处理
+        //step5:请求Banner Ad，对请求回调的Ad作渲染处理
         if (mTTAdNative != null) {
-            mTTAdNative.loadNativeExpressAd(adSlot, new TTAdNative.NativeExpressAdListener() {
+            Log.d("naviad", "开始请求Banner广告...");
+            mTTAdNative.loadBannerExpressAd(adSlot, new TTAdNative.NativeExpressAdListener() {
                 @Override
                 public void onError(int code, String message) {
-//                TToast.show(getActivity(), "load error : " + code + ", " + message);
+                    Log.e("naviad", "Banner广告加载失败 code: " + code + ", message: " + message);
                     mExpressContainer.removeAllViews();
                 }
 
                 @Override
                 public void onNativeExpressAdLoad(List<TTNativeExpressAd> ads) {
+                    Log.d("naviad", "Banner广告加载回调 ads: " + ads);
                     if (ads == null || ads.size() == 0) {
+                        Log.w("naviad", "Banner广告列表为空");
                         return;
                     }
+                    Log.d("naviad", "Banner广告数量: " + ads.size());
                     mTTAd = ads.get(0);
+                    mTTAd.setSlideIntervalTime(30 * 1000); // 设置轮播时间30秒
+                    muteAdAudio();
                     bindAdListener(mTTAd);
                     startTime = System.currentTimeMillis();
+                    Log.d("naviad", "开始渲染Banner广告...");
                     mTTAd.render();
                 }
             });
+        } else {
+            Log.e("naviad", "mTTAdNative 为空，无法加载Banner广告");
         }
     }
 
@@ -633,32 +670,32 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
     private boolean mHasShowDownloadActive = false;
 
     private void bindAdListener(TTNativeExpressAd ad) {
+        Log.d("naviad", "绑定广告监听器");
         ad.setExpressInteractionListener(new TTNativeExpressAd.ExpressAdInteractionListener() {
             @Override
             public void onAdClicked(View view, int type) {
-
-//                TToast.show(mContext, "Ad被点击");
+                Log.d("naviad", "广告被点击 type: " + type);
             }
 
             @Override
             public void onAdShow(View view, int type) {
-
-//                TToast.show(mContext, "Ad展示");
+                Log.d("naviad", "广告展示 type: " + type);
             }
 
             @Override
             public void onRenderFail(View view, String msg, int code) {
-                Log.d("ExpressView", "render fail:" + (System.currentTimeMillis() - startTime));
-
-//                TToast.show(mContext, msg + " code:" + code);
+                long renderTime = System.currentTimeMillis() - startTime;
+                Log.e("naviad", "广告渲染失败 time: " + renderTime + "ms, code: " + code + ", msg: " + msg);
             }
 
             @Override
             public void onRenderSuccess(View view, float width, float height) {
-                Log.d("ExpressView", "render suc:" + (System.currentTimeMillis() - startTime));
-//                TToast.show(mContext, "渲染成功");
+                long renderTime = System.currentTimeMillis() - startTime;
+                Log.d("naviad", "广告渲染成功 time: " + renderTime + "ms, width: " + width + ", height: " + height);
+                Log.d("naviad", "添加广告View到容器");
                 mExpressContainer.removeAllViews();
                 mExpressContainer.addView(view);
+                Log.d("naviad", "广告View已添加，容器子View数量: " + mExpressContainer.getChildCount());
             }
         });
 //dislike设置
@@ -741,8 +778,45 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
         }
     }
 
+    private void muteAdAudio() {
+        if (mAudioManager == null || mAdAudioMuted) {
+            return;
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
+            } else {
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+            }
+            mAdAudioMuted = true;
+            Log.d("naviad", "广告音频已静音");
+        } catch (Throwable throwable) {
+            Log.w("naviad", "muteAdAudio fail", throwable);
+        }
+    }
+
+    private void restoreAdAudio() {
+        if (mAudioManager == null || !mAdAudioMuted) {
+            return;
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
+            } else {
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+            }
+            Log.d("naviad", "广告音频已恢复");
+        } catch (Throwable throwable) {
+            Log.w("naviad", "restoreAdAudio fail", throwable);
+        } finally {
+            mAdAudioMuted = false;
+        }
+    }
+
+
     @Override
     public void onDestroy() {
+        restoreAdAudio();
         super.onDestroy();
         if (mTTAd != null) {
             mTTAd.destroy();
