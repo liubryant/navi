@@ -27,10 +27,18 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.LatLngBounds;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
+import com.amap.api.maps.model.Poi;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.maps.MapsInitializer;
+import com.amap.api.navi.AmapNaviPage;
+import com.amap.api.navi.AmapNaviParams;
+import com.amap.api.navi.AmapNaviType;
+import com.amap.api.navi.AmapPageType;
 import com.amap.api.services.core.AMapException;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.core.PoiItem;
 import com.amap.api.services.core.SuggestionCity;
+import com.amap.api.services.core.ServiceSettings;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.amap.api.services.poisearch.PoiSearch.OnPoiSearchListener;
@@ -55,6 +63,7 @@ import com.bytedance.sdk.openadsdk.TTRewardVideoAd;
 public class PoiAroundSearchActivity extends Activity implements OnClickListener,
         OnMapClickListener, OnInfoWindowClickListener, InfoWindowAdapter, OnMarkerClickListener,
         OnPoiSearchListener {
+    private static final String ERROR_TAG = "navierror";
     private MapView mapview;
     private AMap mAMap;
 
@@ -77,9 +86,13 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
     private EditText mSearchText;
     private double latitude, longitude;
     private String city;
+    private PoiItem selectedPoiItem;
     private TTAdNative mTTAdNative;
     private TTRewardVideoAd mRewardVideoAd;
     private String mRewardVideoCodeId = "982599527";
+    private boolean pendingSearchAfterAd = false;
+    private boolean searchExecutedForCurrentAd = false;
+    private boolean rewardVideoSkipped = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,9 +100,19 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
         setContentView(R.layout.poiaroundsearch_activity);
         latitude = (double) getIntent().getDoubleExtra("latitude", 22.586241);
         longitude = (double) getIntent().getDoubleExtra("longitude", 113.861147);
+        if (!isValidLatLng(latitude, longitude)) {
+            Log.e(ERROR_TAG, "PoiAroundSearchActivity received invalid location lat="
+                    + latitude + ", lon=" + longitude + ", use default fallback");
+            latitude = 22.586241;
+            longitude = 113.861147;
+        }
+        lp = new LatLonPoint(latitude, longitude);
         city = getIntent().getStringExtra("city");
         Log.e("navi", "city  " + city + "  latitude  " + latitude + "  longitude  " + longitude);
+        Log.e(ERROR_TAG, "PoiAroundSearchActivity onCreate city=" + city
+                + ", lat=" + latitude + ", lon=" + longitude);
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
+        privacyCompliance();
         mapview = (MapView) findViewById(R.id.mapView);
         mapview.onCreate(savedInstanceState);
         init();
@@ -128,11 +151,7 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
 
             @Override
             public void onClick(View v) {
-//				Intent intent = new Intent(PoiSearchActivity.this,
-//						SearchDetailActivity.class);
-//				intent.putExtra("poiitem", mPoi);
-//				startActivity(intent);
-
+                startDefaultDriveNavi(selectedPoiItem);
             }
         });
         mPoiName = (TextView) findViewById(R.id.poi_name);
@@ -140,13 +159,17 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
         mSearchText = (EditText) findViewById(R.id.input_edittext);
 
         // 初始化广告SDK
-        if (mTTAdNative == null) {
+        if (!TTAdManagerHolder.isInit()) {
+            Log.w("naviad", "TTAdSdk 未初始化，跳过POI页广告加载");
+        } else if (mTTAdNative == null) {
             mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
             Log.d("naviad", "广告SDK初始化完成");
         }
 
         // 预加载激励视频广告
-        loadRewardVideoAd();
+        if (mTTAdNative != null) {
+            loadRewardVideoAd();
+        }
     }
     /**
      * 开始进行poi搜索
@@ -155,7 +178,17 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
      * 开始进行poi搜索
      */
     protected void doSearchQuery() {
-        keyWord = mSearchText.getText().toString().trim();
+        if (keyWord == null || keyWord.length() == 0) {
+            keyWord = mSearchText.getText().toString().trim();
+        }
+        Log.e(ERROR_TAG, "doSearchQuery keyword=" + keyWord
+                + ", lp=" + (lp == null ? "null" : lp.getLatitude() + "," + lp.getLongitude())
+                + ", city=" + city);
+        if (keyWord.length() == 0) {
+            Log.e(ERROR_TAG, "doSearchQuery blocked: empty keyword");
+            ToastUtil.show(PoiAroundSearchActivity.this, "请输入搜索关键字");
+            return;
+        }
         currentPage = 0;
         query = new PoiSearch.Query(keyWord, "", "");// 第一个参数表示搜索字符串，第二个参数表示poi搜索类型，第三个参数表示poi搜索区域（空字符串代表全国）
         query.setPageSize(20);// 设置每页最多返回多少条poiitem
@@ -163,15 +196,22 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
 
         if (lp != null) {
             try {
+                Log.e(ERROR_TAG, "start PoiSearch keyword=" + keyWord
+                        + ", lat=" + lp.getLatitude()
+                        + ", lon=" + lp.getLongitude()
+                        + ", radius=5000");
                 poiSearch = new PoiSearch(this, query);
                 poiSearch.setOnPoiSearchListener(this);
                 poiSearch.setBound(new SearchBound(lp, 5000, true));//
                 // 设置搜索区域为以lp点为圆心，其周围5000米范围
                 poiSearch.searchPOIAsyn();// 异步搜索
             } catch (AMapException e) {
+                Log.e(ERROR_TAG, "PoiSearch create/search failed keyword=" + keyWord, e);
                 throw new RuntimeException(e);
             }
 
+        } else {
+            Log.e(ERROR_TAG, "doSearchQuery blocked: lp is null, keyword=" + keyWord);
         }
     }
 
@@ -221,16 +261,28 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
 
     @Override
     public void onPoiSearched(PoiResult result, int rcode) {
+        Log.e(ERROR_TAG, "onPoiSearched rcode=" + rcode
+                + ", resultNull=" + (result == null)
+                + ", currentKeyword=" + keyWord);
         if (rcode == AMapException.CODE_AMAP_SUCCESS) {
             if (result != null && result.getQuery() != null) {// 搜索poi的结果
                 if (result.getQuery().equals(query)) {// 是否是同一条
                     poiResult = result;
                     poiItems = poiResult.getPois();// 取得第一页的poiitem数据，页数从数字0开始
+                    Log.e(ERROR_TAG, "onPoiSearched matched query keyword=" + keyWord
+                            + ", count=" + (poiItems == null ? -1 : poiItems.size())
+                            + ", pageCount=" + poiResult.getPageCount());
                     List<SuggestionCity> suggestionCities = poiResult
                             .getSearchSuggestionCitys();// 当搜索不到poiitem数据时，会返回含有搜索关键字的城市信息
                     if (poiItems != null && poiItems.size() > 0) {
+                        PoiItem firstPoi = poiItems.get(0);
+                        Log.e(ERROR_TAG, "first poi title=" + firstPoi.getTitle()
+                                + ", point=" + (firstPoi.getLatLonPoint() == null ? "null"
+                                : firstPoi.getLatLonPoint().getLatitude() + "," + firstPoi.getLatLonPoint().getLongitude())
+                                + ", address=" + firstPoi.getSnippet());
                         //清除POI信息显示
                         whetherToShowDetailInfo(false);
+                        selectedPoiItem = null;
                         //并还原点击marker样式
                         if (mlastMarker != null) {
                             resetlastmarker();
@@ -243,6 +295,7 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
                         poiOverlay = new myPoiOverlay(mAMap, poiItems);
                         poiOverlay.addToMap();
                         poiOverlay.zoomToSpan();
+                        showPoiDetail(poiItems.get(0));
 
                         mAMap.addMarker(new MarkerOptions()
                                 .anchor(0.5f, 0.5f)
@@ -260,17 +313,24 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
 
                     } else if (suggestionCities != null
                             && suggestionCities.size() > 0) {
+                        Log.e(ERROR_TAG, "onPoiSearched no pois, suggestionCityCount=" + suggestionCities.size());
                         showSuggestCity(suggestionCities);
                     } else {
+                        Log.e(ERROR_TAG, "onPoiSearched no result keyword=" + keyWord
+                                + ", lat=" + lp.getLatitude() + ", lon=" + lp.getLongitude());
                         ToastUtil.show(PoiAroundSearchActivity.this,
                                 R.string.no_result);
                     }
+                } else {
+                    Log.e(ERROR_TAG, "onPoiSearched ignored: query mismatch");
                 }
             } else {
+                Log.e(ERROR_TAG, "onPoiSearched no result object/query, keyword=" + keyWord);
                 ToastUtil
                         .show(PoiAroundSearchActivity.this, R.string.no_result);
             }
         } else {
+            Log.e(ERROR_TAG, "onPoiSearched error rcode=" + rcode + ", keyword=" + keyWord);
             ToastUtil.showerror(this.getApplicationContext(), rcode);
         }
     }
@@ -278,11 +338,16 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        Log.e(ERROR_TAG, "onMarkerClick hasObject=" + (marker != null && marker.getObject() != null));
 
         if (marker.getObject() != null) {
             whetherToShowDetailInfo(true);
             try {
                 PoiItem mCurrentPoi = (PoiItem) marker.getObject();
+                Log.e(ERROR_TAG, "marker poi selected title=" + mCurrentPoi.getTitle()
+                        + ", point=" + (mCurrentPoi.getLatLonPoint() == null ? "null"
+                        : mCurrentPoi.getLatLonPoint().getLatitude() + "," + mCurrentPoi.getLatLonPoint().getLongitude()));
+                selectedPoiItem = mCurrentPoi;
                 if (mlastMarker == null) {
                     mlastMarker = marker;
                 } else {
@@ -296,13 +361,16 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
                                 getResources(),
                                 R.drawable.poi_marker_pressed)));
 
-                setPoiItemDisplayContent(mCurrentPoi);
+                showPoiDetail(mCurrentPoi);
             } catch (Exception e) {
-                // TODO: handle exception
+                Log.e(ERROR_TAG, "onMarkerClick failed", e);
             }
         } else {
             whetherToShowDetailInfo(false);
-            resetlastmarker();
+            selectedPoiItem = null;
+            if (mlastMarker != null) {
+                resetlastmarker();
+            }
         }
 
 
@@ -311,7 +379,14 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
 
     // 将之前被点击的marker置为原来的状态
     private void resetlastmarker() {
+        if (poiOverlay == null || mlastMarker == null) {
+            return;
+        }
         int index = poiOverlay.getPoiIndex(mlastMarker);
+        if (index < 0) {
+            mlastMarker = null;
+            return;
+        }
         if (index < 10) {
             mlastMarker.setIcon(BitmapDescriptorFactory
                     .fromBitmap(BitmapFactory.decodeResource(
@@ -329,6 +404,19 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
     private void setPoiItemDisplayContent(final PoiItem mCurrentPoi) {
         mPoiName.setText(mCurrentPoi.getTitle());
         mPoiAddress.setText(mCurrentPoi.getSnippet() + mCurrentPoi.getDistance());
+    }
+
+    private void showPoiDetail(PoiItem poiItem) {
+        if (poiItem == null) {
+            return;
+        }
+        Log.e(ERROR_TAG, "showPoiDetail title=" + poiItem.getTitle()
+                + ", point=" + (poiItem.getLatLonPoint() == null ? "null"
+                : poiItem.getLatLonPoint().getLatitude() + "," + poiItem.getLatLonPoint().getLongitude())
+                + ", address=" + poiItem.getSnippet());
+        selectedPoiItem = poiItem;
+        setPoiItemDisplayContent(poiItem);
+        whetherToShowDetailInfo(true);
     }
 
 
@@ -357,6 +445,19 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_search:
+                keyWord = mSearchText.getText().toString().trim();
+                Log.e(ERROR_TAG, "search button clicked keyword=" + keyWord
+                        + ", lat=" + latitude + ", lon=" + longitude
+                        + ", rewardAdLoaded=" + (mRewardVideoAd != null));
+                if (keyWord.length() == 0) {
+                    Log.e(ERROR_TAG, "search button blocked: empty keyword");
+                    ToastUtil.show(PoiAroundSearchActivity.this, "请输入搜索关键字");
+                    break;
+                }
+                selectedPoiItem = null;
+                pendingSearchAfterAd = true;
+                searchExecutedForCurrentAd = false;
+                rewardVideoSkipped = false;
                 // 点击搜索按钮，先播放激励视频
                 Log.d("naviad", "点击搜索按钮，准备播放激励视频");
                 showRewardVideoAd();
@@ -396,10 +497,52 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
         }
     }
 
+    private void startDefaultDriveNavi(PoiItem poiItem) {
+        if (poiItem == null || poiItem.getLatLonPoint() == null) {
+            Log.e(ERROR_TAG, "startDefaultDriveNavi blocked: poiItem invalid");
+            ToastUtil.show(PoiAroundSearchActivity.this, "请选择要导航的位置");
+            return;
+        }
+        LatLonPoint endPoint = poiItem.getLatLonPoint();
+        Poi start = null;
+        if (isValidLatLng(latitude, longitude)) {
+            start = new Poi("我的位置", new LatLng(latitude, longitude), "");
+        }
+        Poi end = new Poi(poiItem.getTitle(),
+                new LatLng(endPoint.getLatitude(), endPoint.getLongitude()),
+                poiItem.getPoiId());
+        AmapNaviParams params = new AmapNaviParams(start, null, end, AmapNaviType.DRIVER, AmapPageType.NAVI);
+        params.setUseInnerVoice(true);
+        params.setNeedCalculateRouteWhenPresent(true);
+        privacyCompliance();
+        Log.e(ERROR_TAG, "start drive navi from=" + (start == null ? "null" : start.getCoordinate())
+                + ", to=" + (end == null ? "null" : end.getCoordinate())
+                + ", current=" + latitude + "," + longitude
+                + " to " + endPoint.getLatitude() + "," + endPoint.getLongitude()
+                + " name=" + poiItem.getTitle());
+        AmapNaviPage.getInstance().showRouteActivity(PoiAroundSearchActivity.this, params, null);
+    }
+
+    private boolean isValidLatLng(double lat, double lon) {
+        return lat >= -90d && lat <= 90d
+                && lon >= -180d && lon <= 180d
+                && !(lat == 0d && lon == 0d);
+    }
+
+    private void privacyCompliance() {
+        MapsInitializer.updatePrivacyShow(PoiAroundSearchActivity.this, true, true);
+        MapsInitializer.updatePrivacyAgree(PoiAroundSearchActivity.this, true);
+        AMapLocationClient.updatePrivacyShow(PoiAroundSearchActivity.this, true, true);
+        AMapLocationClient.updatePrivacyAgree(PoiAroundSearchActivity.this, true);
+        ServiceSettings.updatePrivacyShow(PoiAroundSearchActivity.this, true, true);
+        ServiceSettings.updatePrivacyAgree(PoiAroundSearchActivity.this, true);
+    }
+
 
     @Override
     public void onMapClick(LatLng arg0) {
         whetherToShowDetailInfo(false);
+        selectedPoiItem = null;
         if (mlastMarker != null) {
             resetlastmarker();
         }
@@ -555,10 +698,12 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
     private void loadRewardVideoAd() {
         if (Constants.isCloseAd) {
             Log.d("naviad", "广告已关闭，不加载激励视频");
+            Log.e(ERROR_TAG, "loadRewardVideoAd skipped: Constants.isCloseAd=true");
             return;
         }
 
         Log.d("naviad", "开始加载激励视频广告, codeId: " + mRewardVideoCodeId);
+        Log.e(ERROR_TAG, "loadRewardVideoAd start codeId=" + mRewardVideoCodeId);
         AdSlot adSlot = new AdSlot.Builder()
                 .setCodeId(mRewardVideoCodeId)
                 .setSupportDeepLink(true)
@@ -574,18 +719,21 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
                 @Override
                 public void onError(int code, String message) {
                     Log.e("naviad", "激励视频加载失败 code: " + code + ", message: " + message);
+                    Log.e(ERROR_TAG, "reward ad load failed code=" + code + ", message=" + message);
                     mRewardVideoAd = null;
                 }
 
                 @Override
                 public void onRewardVideoAdLoad(TTRewardVideoAd ad) {
                     Log.d("naviad", "激励视频加载成功");
+                    Log.e(ERROR_TAG, "reward ad loaded");
                     mRewardVideoAd = ad;
                     // 设置视频广告的监听
                     mRewardVideoAd.setRewardAdInteractionListener(new TTRewardVideoAd.RewardAdInteractionListener() {
                         @Override
                         public void onAdShow() {
                             Log.d("naviad", "激励视频开始播放");
+                            Log.e(ERROR_TAG, "reward ad show");
                         }
 
                         @Override
@@ -596,6 +744,10 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
                         @Override
                         public void onAdClose() {
                             Log.d("naviad", "激励视频关闭");
+                            Log.e(ERROR_TAG, "reward ad close");
+                            if (!rewardVideoSkipped) {
+                                executePendingSearch("adClose");
+                            }
                             // 视频关闭，重新加载下一次使用
                             loadRewardVideoAd();
                         }
@@ -603,23 +755,31 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
                         @Override
                         public void onVideoComplete() {
                             Log.d("naviad", "激励视频播放完成");
+                            Log.e(ERROR_TAG, "reward ad video complete");
+                            executePendingSearch("videoComplete");
                         }
 
                         @Override
                         public void onVideoError() {
                             Log.e("naviad", "激励视频播放出错");
+                            Log.e(ERROR_TAG, "reward ad video error, execute search");
                             // 播放出错，执行搜索
-                            doSearchQuery();
+                            executePendingSearch("videoError");
                         }
 
                         @Override
                         public void onRewardVerify(boolean rewardVerify, int rewardAmount, String rewardName, int errorCode, String errorMsg) {
                             Log.d("naviad", "激励视频奖励验证 rewardVerify: " + rewardVerify +
                                     ", rewardAmount: " + rewardAmount + ", rewardName: " + rewardName);
+                            Log.e(ERROR_TAG, "reward verify rewardVerify=" + rewardVerify
+                                    + ", rewardAmount=" + rewardAmount
+                                    + ", rewardName=" + rewardName
+                                    + ", errorCode=" + errorCode
+                                    + ", errorMsg=" + errorMsg);
                             if (rewardVerify) {
                                 // 奖励验证成功，视频播放完整，执行搜索
                                 Log.d("naviad", "激励视频播放完整，执行POI搜索");
-                                doSearchQuery();
+                                executePendingSearch("rewardVerify");
                             } else {
                                 Log.w("naviad", "激励视频未完整播放，errorCode: " + errorCode + ", errorMsg: " + errorMsg);
                             }
@@ -628,6 +788,9 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
                         @Override
                         public void onSkippedVideo() {
                             Log.d("naviad", "激励视频被跳过");
+                            Log.e(ERROR_TAG, "reward ad skipped");
+                            rewardVideoSkipped = true;
+                            pendingSearchAfterAd = false;
                         }
                     });
                 }
@@ -635,10 +798,12 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
                 @Override
                 public void onRewardVideoCached() {
                     Log.d("naviad", "激励视频缓存成功");
+                    Log.e(ERROR_TAG, "reward ad cached");
                 }
             });
         } else {
             Log.e("naviad", "mTTAdNative为空，无法加载激励视频");
+            Log.e(ERROR_TAG, "loadRewardVideoAd failed: mTTAdNative is null");
         }
     }
 
@@ -648,10 +813,26 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
     private void showRewardVideoAd() {
         if (mRewardVideoAd != null) {
             Log.d("naviad", "播放激励视频广告");
+            Log.e(ERROR_TAG, "showRewardVideoAd show loaded ad");
             mRewardVideoAd.showRewardVideoAd(PoiAroundSearchActivity.this);
         } else {
             Log.w("naviad", "激励视频未加载或加载失败，直接执行搜索");
-            doSearchQuery();
+            Log.e(ERROR_TAG, "showRewardVideoAd no ad, execute search directly");
+            executePendingSearch("noAd");
         }
+    }
+
+    private void executePendingSearch(String reason) {
+        Log.e(ERROR_TAG, "executePendingSearch reason=" + reason
+                + ", pending=" + pendingSearchAfterAd
+                + ", executed=" + searchExecutedForCurrentAd
+                + ", skipped=" + rewardVideoSkipped
+                + ", keyword=" + keyWord);
+        if (!pendingSearchAfterAd || searchExecutedForCurrentAd || rewardVideoSkipped) {
+            return;
+        }
+        searchExecutedForCurrentAd = true;
+        pendingSearchAfterAd = false;
+        doSearchQuery();
     }
 }

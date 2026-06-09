@@ -77,7 +77,11 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
         mContext = this;
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
-        mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
+        if (TTAdManagerHolder.isInit()) {
+            mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
+        } else {
+            Log.w("naviad", "TTAdSdk 未初始化，跳过天气页广告加载");
+        }
 //        setTitleBar();
         cityIntent = getIntent().getStringExtra("city");
         Log.i("navi", "city  " + cityIntent);
@@ -88,7 +92,9 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
             Log.d("navi", "close weather ad");
             mCodeId = "888888888";
         }
-        loadExpressAd(mCodeId);
+        if (mTTAdNative != null) {
+            loadExpressAd(mCodeId);
+        }
 //        loadExpressAd("901121253");
         //天气
         searchliveweather();
@@ -260,6 +266,10 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
     }
 
     private void loadExpressAd(String codeId) {
+        if (mExpressContainer == null || mTTAdNative == null) {
+            Log.w("naviad", "广告容器或广告Native为空，跳过信息流广告加载");
+            return;
+        }
         mExpressContainer.removeAllViews();
         float expressViewWidth = 350;
         float expressViewHeight = 350;

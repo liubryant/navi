@@ -19,6 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -67,12 +68,17 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import cn.navibeidou.beidou.Util.Constants;
+import cn.navibeidou.beidou.Util.SpUtil;
 import cn.navibeidou.beidou.Util.TimeStringUtil;
 import cn.navibeidou.beidou.toutiao.DislikeDialog;
 import cn.navibeidou.beidou.toutiao.config.TTAdManagerHolder;
 import cn.navibeidou.beidou.translucentparent.StatusNavUtils;
 
 public class MapActivity extends AppCompatActivity implements AMapLocationListener, GeocodeSearch.OnGeocodeSearchListener, View.OnClickListener {
+    private static final String TAG = "MapActivity";
+    private static final String KEY_LAST_LAT = "map_last_lat";
+    private static final String KEY_LAST_LON = "map_last_lon";
+    private static final String KEY_LAST_CITY = "map_last_city";
     public BMapManager mBMapManager = null;
     private boolean isHadOpenGame = false;
     private int count = 0;
@@ -97,6 +103,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     LinearLayout ll_service, ll_yinsi, ll_feedback, ll_normal, ll_satellite, ll_bus, ll_quanjian, ll_weather_left;
     AMap aMap;
     RouteSearch routeSearch;
+    private volatile boolean mMapRenderFailed = false;
+    private Thread.UncaughtExceptionHandler mOriginUncaughtExceptionHandler;
+    private Thread.UncaughtExceptionHandler mMapUncaughtExceptionHandler;
     //声明mlocationClient对象
     public AMapLocationClient mlocationClient;
     //声明mLocationOption对象
@@ -124,7 +133,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
-                    aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(cameraPosition1.target, cameraPosition1.zoom, cameraPosition1.tilt, bearing)));
+                    if (isMapAvailable() && cameraPosition1 != null) {
+                        aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(cameraPosition1.target, cameraPosition1.zoom, cameraPosition1.tilt, bearing)));
+                    }
                     break;
                 case 99:
                     showAd();
@@ -150,8 +161,13 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
         initSlide();
         //获取地图控件引用
+        installMapRenderExceptionHandler();
         mMapView = findViewById(R.id.map);
-        mMapView.onCreate(savedInstanceState);
+        try {
+            mMapView.onCreate(savedInstanceState);
+        } catch (RuntimeException e) {
+            handleMapRenderFailure(e);
+        }
         //在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         initView();
         initEngineManager(getApplicationContext());
@@ -340,8 +356,10 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         mExpressContainer = (FrameLayout) findViewById(R.id.banner_container);
 //        mBannerContainer = (FrameLayout) findViewById(R.id.banner_container);
         //step2:创建TTAdNative对象
-        if (mTTAdNative != null) {
+        if (TTAdManagerHolder.isInit() && mTTAdNative == null) {
             mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
+        } else if (!TTAdManagerHolder.isInit()) {
+            Log.w("naviad", "TTAdSdk 未初始化，跳过首页广告加载");
         }
         // 不在启动页或首页初始化阶段主动申请电话权限。
         // 广告 SDK 在缺少 READ_PHONE_STATE 时仍可工作，只是可能影响部分广告填充，
@@ -353,12 +371,69 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         return fragment;
     }
 
+    private void installMapRenderExceptionHandler() {
+        mOriginUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+        mMapUncaughtExceptionHandler = new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable throwable) {
+                if (isMapRenderException(thread, throwable)) {
+                    handleMapRenderFailure(throwable);
+                    return;
+                }
+                if (mOriginUncaughtExceptionHandler != null) {
+                    mOriginUncaughtExceptionHandler.uncaughtException(thread, throwable);
+                }
+            }
+        };
+        Thread.setDefaultUncaughtExceptionHandler(mMapUncaughtExceptionHandler);
+    }
+
+    private boolean isMapRenderException(Thread thread, Throwable throwable) {
+        if (thread == null || throwable == null || thread.getName() == null || !thread.getName().startsWith("GLThread")) {
+            return false;
+        }
+        String message = throwable.getMessage();
+        return throwable instanceof RuntimeException
+                && message != null
+                && message.contains("createContext failed");
+    }
+
+    private void handleMapRenderFailure(Throwable throwable) {
+        if (mMapRenderFailed) {
+            return;
+        }
+        mMapRenderFailed = true;
+        Log.e(TAG, "Map render initialization failed, map features are temporarily unavailable.", throwable);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MapActivity.this, "地图渲染初始化失败，请更换设备或调整模拟器图形设置", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private boolean isMapAvailable() {
+        return !mMapRenderFailed && mMapView != null && aMap != null;
+    }
+
+    private boolean requireMapAvailable() {
+        if (isMapAvailable()) {
+            return true;
+        }
+        Toast.makeText(this, "地图暂不可用，请更换设备或调整模拟器图形设置", Toast.LENGTH_SHORT).show();
+        return false;
+    }
+
     private void initMap() {
+        if (mMapRenderFailed || mMapView == null) {
+            return;
+        }
         //初始化地图控制器对象
         try {
             mlocationClient = new AMapLocationClient(mContext);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            Log.e(TAG, "Location client initialization failed.", e);
+            return;
         }
         //初始化定位参数
         mLocationOption = new AMapLocationClientOption();
@@ -378,7 +453,12 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         mlocationClient.startLocation();
         Log.d("navi", "initMap startLocation ");
         if (aMap == null) {
-            aMap = mMapView.getMap();
+            try {
+                aMap = mMapView.getMap();
+            } catch (RuntimeException e) {
+                handleMapRenderFailure(e);
+                return;
+            }
 //            aMap.setTrafficEnabled(true);//显示交通
             aMap.setMapType(AMap.MAP_TYPE_SATELLITE);//卫星地图模式
 //            myLocationStyle = new MyLocationStyle();//初始化定位蓝点样式类myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE);//连续定位、且将视角移动到地图中心点，定位点依照设备方向旋转，并且会跟随设备移动。（1秒1次定位）如果不设置myLocationType，默认也会执行此种模式。
@@ -412,6 +492,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
 
     //设置不自动移动到中心圆点
     public void customLocationIcon(View view) {
+        if (!isMapAvailable()) {
+            return;
+        }
         BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.ic_cam_camera);
         myLocationStyle.myLocationIcon(bitmapDescriptor);
         aMap.setMyLocationStyle(myLocationStyle);
@@ -467,7 +550,8 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                 toolbar.setTitle(city);
                 amapLocation.getAccuracy();//获取精度信息
                 userLatLng = new LatLng(currentLat, currentLon);
-                if (firstMove) {
+                cacheLatestLocation(currentLat, currentLon, city);
+                if (firstMove && isMapAvailable()) {
                     firstMove = false;
                     Log.i("navi", "moveCamera");
                     aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 18));
@@ -484,6 +568,49 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         }
     }
 
+    private void cacheLatestLocation(double lat, double lon, String currentCity) {
+        if (!isValidLatLng(lat, lon)) {
+            return;
+        }
+        SpUtil.put(this, KEY_LAST_LAT, (float) lat);
+        SpUtil.put(this, KEY_LAST_LON, (float) lon);
+        SpUtil.put(this, KEY_LAST_CITY, currentCity == null ? "" : currentCity);
+    }
+
+    private LatLng resolveLaunchLocation() {
+        if (isValidLatLng(currentLat, currentLon)) {
+            return new LatLng(currentLat, currentLon);
+        }
+        if (userLatLng != null && isValidLatLng(userLatLng.latitude, userLatLng.longitude)) {
+            return userLatLng;
+        }
+        double cachedLat = toDouble(SpUtil.get(this, KEY_LAST_LAT, 0f));
+        double cachedLon = toDouble(SpUtil.get(this, KEY_LAST_LON, 0f));
+        if (isValidLatLng(cachedLat, cachedLon)) {
+            return new LatLng(cachedLat, cachedLon);
+        }
+        return null;
+    }
+
+    private boolean isValidLatLng(double lat, double lon) {
+        return lat >= -90d && lat <= 90d
+                && lon >= -180d && lon <= 180d
+                && !(lat == 0d && lon == 0d);
+    }
+
+    private double toDouble(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        if (value != null) {
+            try {
+                return Double.parseDouble(String.valueOf(value));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return 0d;
+    }
+
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
@@ -492,7 +619,13 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     public void onDestroy() {
         super.onDestroy();
         //在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
-        mMapView.onDestroy();
+        if (mMapView != null && !mMapRenderFailed) {
+            mMapView.onDestroy();
+        }
+        if (mMapUncaughtExceptionHandler != null
+                && Thread.getDefaultUncaughtExceptionHandler() == mMapUncaughtExceptionHandler) {
+            Thread.setDefaultUncaughtExceptionHandler(mOriginUncaughtExceptionHandler);
+        }
 //        destroyAd();
         mListener = null;
         if (mCreativeButton != null) {
@@ -517,7 +650,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     public void onResume() {
         super.onResume();
         //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
-        mMapView.onResume();
+        if (mMapView != null && !mMapRenderFailed) {
+            mMapView.onResume();
+        }
         initMap();
     }
 
@@ -538,14 +673,18 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     public void onPause() {
         super.onPause();
         //在activity执行onPause时执行mMapView.onPause ()，暂停地图的绘制
-        mMapView.onPause();
+        if (mMapView != null && !mMapRenderFailed) {
+            mMapView.onPause();
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //在activity执行onSaveInstanceState时执行mMapView.onSaveInstanceState (outState)，保存地图当前的状态
-        mMapView.onSaveInstanceState(outState);
+        if (mMapView != null && !mMapRenderFailed) {
+            mMapView.onSaveInstanceState(outState);
+        }
     }
 
     private void getAddressByLatlng(LatLng latLng) {
@@ -629,18 +768,27 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ll_normal:
+                if (!requireMapAvailable()) {
+                    break;
+                }
                 aMap.setMapType(AMap.MAP_TYPE_NORMAL);
                 iv_normal.setImageResource(R.mipmap.normal_select);
                 iv_satellite.setImageResource(R.mipmap.map_mode_satellite);
                 iv_bus.setImageResource(R.mipmap.map_mode_bus);
                 break;
             case R.id.ll_satellite:
+                if (!requireMapAvailable()) {
+                    break;
+                }
                 aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
                 iv_normal.setImageResource(R.mipmap.map_mode_normal);
                 iv_satellite.setImageResource(R.mipmap.satellite_select);
                 iv_bus.setImageResource(R.mipmap.map_mode_bus);
                 break;
             case R.id.ll_bus:
+                if (!requireMapAvailable()) {
+                    break;
+                }
                 aMap.setMapType(AMap.MAP_TYPE_BUS);
                 iv_normal.setImageResource(R.mipmap.map_mode_normal);
                 iv_satellite.setImageResource(R.mipmap.map_mode_satellite);
@@ -650,14 +798,23 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
             case R.id.input_edittext:
                 Intent intent = new Intent(MapActivity.this, IndexActivity.class);
                 intent.putExtra("isMap", true);
-                intent.putExtra("currentLat", currentLat);
-                intent.putExtra("currentLon", currentLon);
+                LatLng launchLocation = resolveLaunchLocation();
+                if (launchLocation != null) {
+                    intent.putExtra("currentLat", launchLocation.latitude);
+                    intent.putExtra("currentLon", launchLocation.longitude);
+                    Log.i(TAG, "open IndexActivity with current location: " + launchLocation.latitude + "," + launchLocation.longitude);
+                } else {
+                    Log.w(TAG, "open IndexActivity without valid current location");
+                }
                 startActivity(intent);
                 if (timer != null) {
                     timer.cancel();
                 }
                 break;
             case R.id.tv_traffic:
+                if (!requireMapAvailable()) {
+                    break;
+                }
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START);
                 } else {
@@ -677,8 +834,19 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
 
             case R.id.tv_poi:
                 Intent intentpoi = new Intent(MapActivity.this, PoiAroundSearchActivity.class);
-                intentpoi.putExtra("latitude", currentLat);
-                intentpoi.putExtra("longitude", currentLon);
+                LatLng poiLaunchLocation = resolveLaunchLocation();
+                if (poiLaunchLocation != null) {
+                    intentpoi.putExtra("latitude", poiLaunchLocation.latitude);
+                    intentpoi.putExtra("longitude", poiLaunchLocation.longitude);
+                    Log.e("navierror", "open PoiAroundSearchActivity lat="
+                            + poiLaunchLocation.latitude + ", lon=" + poiLaunchLocation.longitude
+                            + ", city=" + city);
+                } else {
+                    intentpoi.putExtra("latitude", currentLat);
+                    intentpoi.putExtra("longitude", currentLon);
+                    Log.e("navierror", "open PoiAroundSearchActivity with raw location lat="
+                            + currentLat + ", lon=" + currentLon + ", city=" + city);
+                }
                 intentpoi.putExtra("city", city);
                 startActivity(intentpoi);
                 break;
@@ -696,6 +864,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                 changeSlide();
                 break;
             case R.id.tv_north:
+                if (!requireMapAvailable()) {
+                    break;
+                }
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START);
                 } else {
@@ -720,6 +891,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                 startActivity(intentGame);
                 break;
             case R.id.tv_vedio:
+                if (!requireMapAvailable()) {
+                    break;
+                }
                 if (!isEn) {
                     isEn = true;
                     aMap.setMapLanguage("en");
@@ -763,6 +937,10 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     }
 
     private void loadExpressAd(String codeId, int expressViewWidth, int expressViewHeight) {
+        if (mExpressContainer == null || mTTAdNative == null) {
+            Log.w("naviad", "广告容器或广告Native为空，跳过Banner广告加载");
+            return;
+        }
         mExpressContainer.removeAllViews();
         //step4:创建Ad请求参数AdSlot,具体参数含义参考文档
         AdSlot adSlot = new AdSlot.Builder()

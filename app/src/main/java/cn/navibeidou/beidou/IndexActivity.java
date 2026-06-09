@@ -22,7 +22,10 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.maps.MapsInitializer;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Poi;
 import com.amap.api.navi.AMapNavi;
@@ -32,6 +35,7 @@ import com.amap.api.navi.AmapNaviType;
 import com.amap.api.navi.AmapPageType;
 import com.amap.api.navi.INaviInfoCallback;
 import com.amap.api.navi.model.AMapNaviLocation;
+import com.amap.api.services.core.ServiceSettings;
 import com.bytedance.sdk.openadsdk.AdSlot;
 import com.bytedance.sdk.openadsdk.DislikeInfo;
 import com.bytedance.sdk.openadsdk.FilterWord;
@@ -46,6 +50,7 @@ import java.util.List;
 
 import cn.navibeidou.beidou.Util.CheckPermissionsActivity;
 import cn.navibeidou.beidou.Util.Constants;
+import cn.navibeidou.beidou.Util.SpUtil;
 import cn.navibeidou.beidou.navi.DriverListActivity;
 import cn.navibeidou.beidou.navi.FeatureView;
 import cn.navibeidou.beidou.navi.RideRouteCalculateActivity;
@@ -61,6 +66,9 @@ import cn.navibeidou.beidou.translucentparent.StatusNavUtils;
  * bug反馈QQ:1438734562
  */
 public class IndexActivity extends CheckPermissionsActivity implements INaviInfoCallback, View.OnClickListener {
+    private static final String TAG = "IndexActivity";
+    private static final String KEY_LAST_LAT = "map_last_lat";
+    private static final String KEY_LAST_LON = "map_last_lon";
     private LatLng p1 = new LatLng(39.993266, 116.473193);//首开广场
     private LatLng p2 = new LatLng(39.917337, 116.397056);//故宫博物院
     private LatLng p3 = new LatLng(39.904556, 116.427231);//北京站
@@ -83,52 +91,53 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
     private ImageView iv_arrow;
     private ImageView plus;
     private ImageView change;
-    //    private EditText et_gps;
+    private EditText et_gps;
     private EditText et_destination;
     private LinearLayout ll_destination;
     private TextView text1;
     private ListAdapter adapter;
+    private Poi destinationPoi;
+    private boolean routeSwapped = false;
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_drive:
-            case R.id.et_destination:
+            case R.id.ll_drive:
                 naviType = 1;
                 updateModeButtons();
-                AmapNaviParams params = new AmapNaviParams(null, null, null, AmapNaviType.DRIVER);
-                params.setUseInnerVoice(true);
-                AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), params, IndexActivity.this);
+                showRouteActivitySafely(createRouteParams(AmapNaviType.DRIVER));
                 break;
             case R.id.btn_walk:
+            case R.id.ll_walk:
                 naviType = 2;
                 updateModeButtons();
-                AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(),
-                        new AmapNaviParams(null, null, new Poi("故宫博物院", null, ""),
-                                AmapNaviType.WALK), IndexActivity.this);
+                showRouteActivitySafely(createRouteParams(AmapNaviType.WALK));
                 break;
             case R.id.btn_bike:
+            case R.id.ll_bike:
                 naviType = 3;
                 updateModeButtons();
-                AmapNaviParams params3 = new AmapNaviParams(null, null, null, AmapNaviType.RIDE);
-                params3.setUseInnerVoice(true);
-                AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), params3, IndexActivity.this);
+                showRouteActivitySafely(createRouteParams(AmapNaviType.RIDE));
                 break;
             case R.id.btn_truck:
+            case R.id.ll_truck:
                 naviType = 4;
                 updateModeButtons();
-                AmapNaviParams params4 = new AmapNaviParams(null, null, null, AmapNaviType.DRIVER);
-                params4.setUseInnerVoice(true);
-                AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), params4, IndexActivity.this);
+                showRouteActivitySafely(createRouteParams(AmapNaviType.DRIVER));
+                break;
+            case R.id.et_destination:
+            case R.id.ll_destination:
+                showRouteActivitySafely(createRouteParams(currentNaviType()));
                 break;
             case R.id.iv_arrow:
                 finish();
                 break;
             case R.id.btn_navi:
-                naviType = 1;
-                AmapNaviParams params5 = new AmapNaviParams(null, null, null, AmapNaviType.DRIVER);
-                params5.setUseInnerVoice(true);
-                AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), params5, IndexActivity.this);
+                showRouteActivitySafely(createRouteParams(currentNaviType()));
+                break;
+            case R.id.change:
+                toggleRouteSwap();
                 break;
             case R.id.btn_near:
                 //街景
@@ -165,14 +174,19 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
         mContext = this;
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         isMap = getIntent().getBooleanExtra("isMap", false);
-        currentLat = getIntent().getDoubleExtra("currentLat", 39.917337);
-        currentLon = getIntent().getDoubleExtra("currentLon", 116.397056);
+        loadCurrentLocation();
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
-        initView();
         privacyCompliance();
+        initView();
     }
 
     private void privacyCompliance() {
+        MapsInitializer.updatePrivacyShow(IndexActivity.this, true, true);
+        MapsInitializer.updatePrivacyAgree(IndexActivity.this, true);
+        AMapLocationClient.updatePrivacyShow(IndexActivity.this, true, true);
+        AMapLocationClient.updatePrivacyAgree(IndexActivity.this, true);
+        ServiceSettings.updatePrivacyShow(IndexActivity.this, true, true);
+        ServiceSettings.updatePrivacyAgree(IndexActivity.this, true);
         /*MapsInitializer.updatePrivacyShow(IndexActivity.this,true,true);
         SpannableStringBuilder spannable = new SpannableStringBuilder("\"亲，感谢您对XXX一直以来的信任！我们依据最新的监管要求更新了XXX《隐私权政策》，特向您说明如下\n1.为向您提供交易相关基本功能，我们会收集、使用必要的信息；\n2.基于您的明示授权，我们可能会获取您的位置（为您提供附近的商品、店铺及优惠资讯等）等信息，您有权拒绝或取消授权；\n3.我们会采取业界先进的安全措施保护您的信息安全；\n4.未经您同意，我们不会从第三方处获取、共享或向提供您的信息；\n");
         spannable.setSpan(new ForegroundColorSpan(Color.BLUE), 35, 42, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -194,6 +208,102 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
                 .show();*/
     }
 
+    private void showRouteActivitySafely(AmapNaviParams params) {
+        privacyCompliance();
+        try {
+            AmapNaviPage.getInstance().showRouteActivity(IndexActivity.this, params, IndexActivity.this);
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Amap navi route activity start failed.", e);
+            Toast.makeText(this, "导航组件启动失败，请检查设备系统或高德导航SDK兼容性", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private AmapNaviType currentNaviType() {
+        if (naviType == 2) {
+            return AmapNaviType.WALK;
+        }
+        if (naviType == 3) {
+            return AmapNaviType.RIDE;
+        }
+        return AmapNaviType.DRIVER;
+    }
+
+    private AmapNaviParams createRouteParams(AmapNaviType type) {
+        Poi start = null;
+        Poi end = destinationPoi;
+        if (routeSwapped && end != null && isValidLatLng(currentLat, currentLon)) {
+            start = end;
+            end = new Poi("原起点", new LatLng(currentLat, currentLon), "");
+        } else if (end != null && isValidLatLng(currentLat, currentLon)) {
+            start = new Poi("我的位置", new LatLng(currentLat, currentLon), "");
+        }
+        AmapNaviParams params = new AmapNaviParams(start, null, end, type, AmapPageType.ROUTE);
+        params.setUseInnerVoice(true);
+        params.setNeedCalculateRouteWhenPresent(end != null);
+        Log.i(TAG, "open navi sdk start="
+                + (start == null ? "null" : start.getCoordinate())
+                + ", end=" + (end == null ? "null" : end.getCoordinate())
+                + ", type=" + type
+                + ", routeSwapped=" + routeSwapped);
+        return params;
+    }
+
+    private void toggleRouteSwap() {
+        if (destinationPoi == null) {
+            Toast.makeText(this, "请先输入终点", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        routeSwapped = !routeSwapped;
+        updateRouteInputText();
+        Log.i(TAG, "route swap changed: " + routeSwapped);
+    }
+
+    private void updateRouteInputText() {
+        if (et_gps == null || et_destination == null) {
+            return;
+        }
+        if (routeSwapped) {
+            et_gps.setText(destinationPoi.getName());
+            et_destination.setText("原起点");
+        } else {
+            et_gps.setText("我的位置");
+            et_destination.setText(destinationPoi == null ? "" : destinationPoi.getName());
+        }
+    }
+
+    private void loadCurrentLocation() {
+        double lat = getIntent().getDoubleExtra("currentLat", 0d);
+        double lon = getIntent().getDoubleExtra("currentLon", 0d);
+        if (!isValidLatLng(lat, lon)) {
+            lat = toDouble(SpUtil.get(this, KEY_LAST_LAT, 0f));
+            lon = toDouble(SpUtil.get(this, KEY_LAST_LON, 0f));
+        }
+        if (isValidLatLng(lat, lon)) {
+            currentLat = lat;
+            currentLon = lon;
+        }
+        Log.i(TAG, "current location for navi: " + currentLat + "," + currentLon);
+    }
+
+    private boolean isValidLatLng(double lat, double lon) {
+        return lat >= -90d && lat <= 90d
+                && lon >= -180d && lon <= 180d
+                && !(lat == 0d && lon == 0d);
+    }
+
+    private double toDouble(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        if (value != null) {
+            try {
+                return Double.parseDouble(String.valueOf(value));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return 0d;
+    }
+
     private void initView() {
         ll_drive = findViewById(R.id.ll_drive);
         ll_walk = findViewById(R.id.ll_walk);
@@ -208,8 +318,9 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
         iv_arrow = findViewById(R.id.iv_arrow);
         plus = findViewById(R.id.plus);
         change = findViewById(R.id.change);
-//        et_gps = findViewById(R.id.et_gps);
+        et_gps = findViewById(R.id.et_gps);
         et_destination = findViewById(R.id.et_destination);
+        ll_destination = findViewById(R.id.ll_destination);
         ll_drive.setOnClickListener(this);
         ll_walk.setOnClickListener(this);
         ll_bike.setOnClickListener(this);
@@ -224,6 +335,7 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
         change.setOnClickListener(this);
         plus.setOnClickListener(this);
         et_destination.setOnClickListener(this);
+        ll_destination.setOnClickListener(this);
         ListView listView = findViewById(R.id.list);
         setTitle("导航SDK " + AMapNavi.getVersion());
 
@@ -235,7 +347,9 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
         mExpressContainer = (FrameLayout) findViewById(R.id.express_container);
         Log.d("naviad", "初始化广告容器 mExpressContainer: " + mExpressContainer);
 
-        if (mTTAdNative == null) {
+        if (!TTAdManagerHolder.isInit()) {
+            Log.w("naviad", "TTAdSdk 未初始化，跳过导航页广告加载");
+        } else if (mTTAdNative == null) {
             Log.d("naviad", "创建广告Native对象");
             mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
             Log.d("naviad", "广告Native创建完成: " + mTTAdNative);
@@ -250,7 +364,9 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
         Log.d("naviad", "广告位ID: " + Constants.BANNER_ID);
 
         updateModeButtons();
-        loadExpressAd(Constants.BANNER_ID);
+        if (mTTAdNative != null) {
+            loadExpressAd(Constants.BANNER_ID);
+        }
     }
 
     private void updateModeButtons() {
@@ -436,9 +552,9 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
             if (position == 1) {
                 AmapNaviParams params = new AmapNaviParams(new Poi("北京站", p3, ""), null, new Poi("故宫博物院", p2, ""), AmapNaviType.DRIVER);
                 params.setUseInnerVoice(true);
-                AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), params, IndexActivity.this);
+                showRouteActivitySafely(params);
             } else if (position == 2) {
-                AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), new AmapNaviParams(null, null, new Poi("故宫博物院", p2, ""), AmapNaviType.DRIVER), IndexActivity.this);
+                showRouteActivitySafely(new AmapNaviParams(null, null, new Poi("故宫博物院", p2, ""), AmapNaviType.DRIVER));
             } else if (position == 3) {
                 List<Poi> poiList = new ArrayList();
                 poiList.add(new Poi("首开广场", p1, ""));
@@ -447,7 +563,7 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
 
                 AmapNaviParams params = new AmapNaviParams(new Poi("立水桥(北5环)", p5, ""), poiList, new Poi("新三余公园(南5环)", p4, ""), AmapNaviType.DRIVER);
                 params.setUseInnerVoice(true);
-                AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), params, IndexActivity.this);
+                showRouteActivitySafely(params);
             } else if (position == 4) {
                 //起点
                 Poi start = new Poi("立水桥(北5环)", p5, "");
@@ -460,7 +576,7 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
                 Poi end = new Poi("新三余公园(南5环)", p4, "");
                 AmapNaviParams amapNaviParams = new AmapNaviParams(start, poiList, end, AmapNaviType.DRIVER, AmapPageType.NAVI);
                 amapNaviParams.setUseInnerVoice(true);
-                AmapNaviPage.getInstance().showRouteActivity(getApplicationContext(), amapNaviParams, IndexActivity.this);
+                showRouteActivitySafely(amapNaviParams);
             } else {
                 /*DemoDetails demo = (DemoDetails) adapter.getItem(position);
                 if (demo.activityClass != null) {
@@ -621,6 +737,11 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
         Log.d("naviad", "开始加载Banner广告, codeId: " + codeId);
         Log.d("naviad", "mExpressContainer: " + mExpressContainer);
         Log.d("naviad", "mTTAdNative: " + mTTAdNative);
+
+        if (mExpressContainer == null || mTTAdNative == null) {
+            Log.w("naviad", "广告容器或广告Native为空，跳过Banner广告加载");
+            return;
+        }
 
         mExpressContainer.removeAllViews();
         // Banner广告尺寸固定为 300x250

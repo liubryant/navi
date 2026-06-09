@@ -68,7 +68,11 @@ public class SplashActivity extends Activity {
         StatusNavUtils.setStatusBarColor(this, 0x00000000);
         mSplashContainer = (FrameLayout) findViewById(R.id.splash_container);
         //step2:创建TTAdNative对象
-        mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
+        if (TTAdManagerHolder.isInit()) {
+            mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
+        } else {
+            Log.w(TAG, "TTAdSdk 未初始化，跳过开屏广告");
+        }
 
         getExtraInfo();
         //在合适的时机申请权限，如read_phone_state,防止获取不了imei时候，下载类Ad没有填充的问题
@@ -110,6 +114,10 @@ public class SplashActivity extends Activity {
      * 加载开屏Ad
      */
     private void loadSplashAd() {
+        if (mTTAdNative == null) {
+            goToMainActivity();
+            return;
+        }
         //step3:创建开屏Ad请求参数AdSlot,具体参数含义参考文档
         AdSlot adSlot = null;
         if (mIsExpress) {

@@ -19,9 +19,15 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.release
+            debuggable false
+            jniDebuggable false
+            renderscriptDebuggable false
         }
         release {
             signingConfig signingConfigs.release
+            debuggable false
+            jniDebuggable false
+            renderscriptDebuggable false
         }
     }
 
@@ -36,8 +42,8 @@ android {
         applicationId "cn.navibeidou.beidou"
         minSdkVersion 29
         targetSdkVersion 33
-        versionCode 38
-        versionName '3.6.1'
+        versionCode 39
+        versionName '3.6.2'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         ndk {
@@ -52,6 +58,9 @@ android {
     packagingOptions {
         exclude 'assets/location_map_gps_locked.png'
         exclude 'assets/location_map_gps_3d.png'
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
     android.applicationVariants.all { variant ->
         def appName
@@ -104,7 +113,7 @@ dependencies {
     implementation files('libs\\glide-3.6.0.jar')
     implementation files('libs\\okhttp-3.4.1.jar')
     implementation files('libs\\okio-1.9.0.jar')
-    implementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
 //    implementation files('libs\\AMap3DMap_9.8.3_AMapNavi_9.8.3_AMapSearch_9.7.0_AMapLocation_6.4.2_20231215.jar')
 //    implementation files('libs\\AMap_Location_V5.3.1_20210331.jar')
 //    implementation files('libs\\AMap3DMap_7.9.1_AMapNavi_7.9.1_20210414.jar')
@@ -125,7 +134,4 @@ dependencies {
 //    implementation (name:'GDTSDK.unionNoPlugin.4.290.1160', ext:'aar')
 
 }
-
-
-
 

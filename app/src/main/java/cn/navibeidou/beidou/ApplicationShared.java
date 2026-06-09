@@ -12,6 +12,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.maps.MapsInitializer;
+import com.amap.api.services.core.ServiceSettings;
 import com.baidu.lbsapi.BMapManager;
 import com.baidu.lbsapi.MKGeneralListener;
 
@@ -27,6 +30,7 @@ public class ApplicationShared extends Application {
     private static ApplicationShared mInstance;
     private static Context mContext;
     private static String version = "1.0";
+    private Thread.UncaughtExceptionHandler mOriginUncaughtExceptionHandler;
     private final WeakHashMap<Activity, Runnable> aMapRouteStatusBarGuards = new WeakHashMap<>();
 
     public static ApplicationShared getInstance() {
@@ -41,6 +45,8 @@ public class ApplicationShared extends Application {
         super.onCreate();
         mInstance = this;
         mContext = getApplicationContext();
+        initAmapPrivacyCompliance();
+        installAmapRenderExceptionHandler();
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
@@ -92,6 +98,41 @@ public class ApplicationShared extends Application {
 
     public static void setVersion(String ver) {
         version = ver;
+    }
+
+    private void initAmapPrivacyCompliance() {
+        MapsInitializer.updatePrivacyShow(this, true, true);
+        MapsInitializer.updatePrivacyAgree(this, true);
+        AMapLocationClient.updatePrivacyShow(this, true, true);
+        AMapLocationClient.updatePrivacyAgree(this, true);
+        ServiceSettings.updatePrivacyShow(this, true, true);
+        ServiceSettings.updatePrivacyAgree(this, true);
+    }
+
+    private void installAmapRenderExceptionHandler() {
+        mOriginUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable throwable) {
+                if (isAmapRenderException(thread, throwable)) {
+                    Log.e("ApplicationShared", "Amap render thread failed, keep process alive.", throwable);
+                    return;
+                }
+                if (mOriginUncaughtExceptionHandler != null) {
+                    mOriginUncaughtExceptionHandler.uncaughtException(thread, throwable);
+                }
+            }
+        });
+    }
+
+    private boolean isAmapRenderException(Thread thread, Throwable throwable) {
+        if (thread == null || throwable == null || thread.getName() == null || !thread.getName().startsWith("GLThread")) {
+            return false;
+        }
+        String message = throwable.getMessage();
+        return throwable instanceof RuntimeException
+                && message != null
+                && message.contains("createContext failed");
     }
 
     public void initEngineManager(Context context) {
