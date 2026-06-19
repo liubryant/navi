@@ -114,6 +114,22 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Splash" />
         <activity
+            android:name=".WorldPanoramaActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash" />
+        <activity
+            android:name=".WorldPanoramaDetailActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash" />
+        <activity
+            android:name=".CloudPanoramaActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash" />
+        <activity
+            android:name=".CloudWebActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash" />
+        <activity
             android:name=".QuanJingActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Splash"></activity>

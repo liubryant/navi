@@ -14,27 +14,46 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.amap.api.maps.MapView
-                android:id="@+id/map"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="12dp"
+	            <com.amap.api.maps.MapView
+	                android:id="@+id/map"
+	                android:layout_width="match_parent"
+	                android:layout_height="match_parent" />
+
+		            <LinearLayout
+		                android:layout_width="wrap_content"
+		                android:layout_height="match_parent"
+		                android:layout_alignParentRight="true"
+	                android:layout_marginRight="12dp"
                 android:clickable="true"
                 android:gravity="center_vertical"
-                android:orientation="vertical">
+	                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tv_poi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/tv_cloud_top"
+                    android:layout_width="58dp"
+                    android:layout_height="62dp"
                     android:layout_gravity="center_horizontal"
-                    android:background="@color/transparent"
-                    android:drawableTop="@drawable/search_poi"
+                    android:background="@drawable/bg_cloud_home_button"
+                    android:drawableTop="@drawable/ic_cloud_panorama"
+                    android:drawablePadding="3dp"
+                    android:elevation="6dp"
                     android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:text="@string/home_cloud_panorama"
+                    android:textColor="#1677FF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+	                <TextView
+	                    android:id="@+id/tv_poi"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:layout_gravity="center_horizontal"
+	                    android:layout_marginTop="18dp"
+	                    android:background="@color/transparent"
+	                    android:drawableTop="@drawable/search_poi"
+	                    android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/find"
                     android:drawablePadding="3dp"
@@ -97,10 +116,26 @@
                 android:gravity="center_vertical"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/tv_world_panorama"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/transparent"
+                    android:drawableTop="@drawable/ic_world_panorama"
+                    android:drawablePadding="4dp"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:text="@string/world_search_entry"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+
+                <TextView
                     android:id="@+id/tv_quanjin"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
                     android:background="@color/transparent"
                     android:drawableTop="@mipmap/quanjing"
                     android:gravity="center"
@@ -175,16 +210,16 @@
 
             <RelativeLayout
                 android:background="#7effffff"
-                android:id="@+id/search_bar_layout"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_centerHorizontal="true"
-                android:layout_marginLeft="32dp"
-                android:layout_marginRight="32dp"
-                android:layout_marginTop="@dimen/offset_title"
-                android:clickable="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+	                android:id="@+id/search_bar_layout"
+	                android:layout_width="match_parent"
+	                android:layout_height="48dp"
+		                android:layout_centerHorizontal="true"
+		                android:layout_marginLeft="32dp"
+		                android:layout_marginRight="32dp"
+	                android:layout_marginTop="@dimen/offset_title"
+	                android:clickable="true"
+	                android:gravity="center_vertical"
+	                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -245,8 +280,8 @@
                 android:gravity="bottom"
                 android:singleLine="true"
                 android:textColor="@color/white"
-                android:textSize="12sp"
-                android:visibility="gone" />
+	                android:textSize="12sp"
+	                android:visibility="gone" />
 
 
         </RelativeLayout>

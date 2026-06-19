@@ -117,7 +117,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     GeocodeSearch geocodeSearch;
 
     private ImageView iv_normal, iv_satellite, iv_bus;
-    private TextView input_edittext, tv_traffic, tv_poi, tv_weather, tv_vedio, tv_title, tv_metro, tv_north, tv_quanjin, tv_current_location, tv_game;
+    private TextView input_edittext, tv_traffic, tv_poi, tv_weather, tv_vedio, tv_title, tv_metro, tv_north, tv_quanjin, tv_world_panorama, tv_current_location, tv_game, tv_cloud_top;
     private boolean trafficVisible = false;
     private boolean isEn = false;
     float bearing = 0.0f;  // 地图默认方向
@@ -301,7 +301,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         tv_title = findViewById(R.id.tv_title);
         tv_north = findViewById(R.id.tv_north);
         tv_quanjin = findViewById(R.id.tv_quanjin);
+        tv_world_panorama = findViewById(R.id.tv_world_panorama);
         tv_game = findViewById(R.id.tv_game);
+        tv_cloud_top = findViewById(R.id.tv_cloud_top);
         tv_title.setText(getString(R.string.app_name) + "V" + getVersionName(mContext));
         input_edittext.setOnClickListener(this);
         tv_traffic.setOnClickListener(this);
@@ -310,7 +312,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         tv_metro.setOnClickListener(this);
         tv_north.setOnClickListener(this);
         tv_quanjin.setOnClickListener(this);
+        tv_world_panorama.setOnClickListener(this);
         tv_game.setOnClickListener(this);
+        tv_cloud_top.setOnClickListener(this);
         tv_vedio.setOnClickListener(this);
         ll_service.setOnClickListener(this);
         ll_yinsi.setOnClickListener(this);
@@ -558,7 +562,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                 }
                 String time = TimeStringUtil.longToDate(amapLocation.getTime());
                 Log.i("navi", "city  " + city + "  currentLat  " + currentLat + "  currentLon  " + currentLon + "  time  " + time);
-                tv_current_location.setText("经度: " + currentLat + "    纬度: " + currentLon + "\n位置: " + address);
+                tv_current_location.setText("经度: " + currentLon + "\n纬度: " + currentLat + "\n位置: " + address);
             } else {
                 //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
                 Log.e("navi AmapError", "location Error, ErrCode:"
@@ -860,6 +864,12 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                 Intent intentmetro = new Intent(MapActivity.this, JsActivity.class);
                 startActivity(intentmetro);
                 break;
+            case R.id.tv_world_panorama:
+                startActivity(new Intent(MapActivity.this, WorldPanoramaActivity.class));
+                break;
+            case R.id.tv_cloud_top:
+                startActivity(new Intent(MapActivity.this, CloudPanoramaActivity.class));
+                break;
             case R.id.toolbar:
                 changeSlide();
                 break;
@@ -873,7 +883,11 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                     drawerLayout.openDrawer(GravityCompat.START);
                 }
                 cameraPosition1 = aMap.getCameraPosition();
-                aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(cameraPosition1.target, cameraPosition1.zoom, cameraPosition1.tilt, -15f)));
+                LatLng northTarget = resolveLaunchLocation();
+                if (northTarget == null) {
+                    northTarget = cameraPosition1.target;
+                }
+                aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(northTarget, cameraPosition1.zoom, cameraPosition1.tilt, -15f)));
                 mHandler.sendEmptyMessageDelayed(0, 200);
                 break;
             case R.id.tv_quanjin:

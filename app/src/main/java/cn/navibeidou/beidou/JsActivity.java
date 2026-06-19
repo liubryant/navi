@@ -2,23 +2,36 @@ package cn.navibeidou.beidou;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 import cn.navibeidou.beidou.translucentparent.StatusNavUtils;
 
 public class JsActivity extends Activity {
+    private static final String[] SUBWAY_CITIES = {
+            "深圳", "北京", "上海", "广州", "成都", "武汉", "杭州", "南京", "重庆", "天津",
+            "西安", "苏州", "郑州", "长沙", "青岛", "宁波", "无锡", "沈阳", "大连", "厦门",
+            "福州", "昆明", "南宁", "合肥", "南昌", "石家庄", "哈尔滨", "长春", "贵阳", "佛山"
+    };
     private WebView webView;
+    private boolean metroPageLoaded = false;
     private String message;
     private JsInterface jsInterface;
     private String[] params = null;
@@ -29,8 +42,16 @@ public class JsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activityjs);
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
+        findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        setupCitySpinner();
         webView = findViewById(R.id.webview);
         webView.requestFocus();
+        webView.setWebViewClient(new WebViewClient());
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int progress) {
@@ -38,6 +59,7 @@ public class JsActivity extends Activity {
                 JsActivity.this.setProgress(progress);
                 if (progress >= 80) {
                     JsActivity.this.setTitle("JsAndroid Test");
+                    metroPageLoaded = true;
                 }
             }
         });
@@ -45,19 +67,61 @@ public class JsActivity extends Activity {
 
         jsInterface = new JsInterface();
         params = new String[2];
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setDefaultTextEncodingName("utf-8");
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setDatabaseEnabled(true);
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setDefaultTextEncodingName("utf-8");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        }
 //        webView.addJavascriptInterface(new JSInterface(), "adcode");
 //        webView.addJavascriptInterface(jsInterface, "jsObj");
 //        webView.loadUrl("http://cocos-games.fir.show/games/0000079-basketball-2.4.4/index.html");
-        webView.loadUrl("file:///android_asset/metro.html");
-        webView.evaluateJavascript("javascript:theRequest('" + 3100 + "'')", new ValueCallback<String>() {
+        loadMetroPage();
+        settings.setDefaultZoom(WebSettings.ZoomDensity.CLOSE);
+    }
+
+    private void setupCitySpinner() {
+        Spinner spinner = findViewById(R.id.sp_city);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, SUBWAY_CITIES);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setSelection(0);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onReceiveValue(String value) {
-                Log.d("navi", "onReceiveValue  " + value);
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (webView == null) return;
+                String city = SUBWAY_CITIES[position];
+                webView.evaluateJavascript("window.setSubwayCityByName && window.setSubwayCityByName('" + city + "')", null);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        webView.getSettings().setDefaultZoom(WebSettings.ZoomDensity.CLOSE);
+    }
+
+    private void loadMetroPage() {
+        try {
+            webView.loadDataWithBaseURL("https://api.map.baidu.com/", readAssetText("metro.html"), "text/html", "UTF-8", null);
+        } catch (IOException e) {
+            webView.loadUrl("file:///android_asset/metro.html");
+        }
+    }
+
+    private String readAssetText(String fileName) throws IOException {
+        StringBuilder builder = new StringBuilder();
+        try (InputStream inputStream = getAssets().open(fileName);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line).append('\n');
+            }
+        }
+        return builder.toString();
     }
 
     private class JsInterface {

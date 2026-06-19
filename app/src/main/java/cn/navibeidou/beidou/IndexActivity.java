@@ -176,6 +176,12 @@ public class IndexActivity extends CheckPermissionsActivity implements INaviInfo
         isMap = getIntent().getBooleanExtra("isMap", false);
         loadCurrentLocation();
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
+        findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         privacyCompliance();
         initView();
     }

@@ -26,6 +26,12 @@ public class GameActivity extends Activity {
         // 设置锁屏下可展示，此配置仅限测试调试使用，正式代码慎用
         setContentView(R.layout.activity_web);
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
+        findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         WebView webView = findViewById(R.id.webview);
         Button btn_confirm = findViewById(R.id.btn_confirm);
         final EditText edit = findViewById(R.id.edit);

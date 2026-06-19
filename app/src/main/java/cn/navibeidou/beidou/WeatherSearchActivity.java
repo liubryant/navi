@@ -77,6 +77,12 @@ public class WeatherSearchActivity extends Activity implements OnWeatherSearchLi
         mContext = this;
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
+        findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         if (TTAdManagerHolder.isInit()) {
             mTTAdNative = TTAdManagerHolder.get().createAdNative(this);
         } else {

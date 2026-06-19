@@ -32,10 +32,18 @@
 	<string name="editTel">Please Input Tel</string>
 	<string name="editpw">Please Input Password</string>
 
-	<string name="zhen">zh_en</string>
-	<string name="quanjing">pano</string>
-	<string name="metro">metro</string>
-	<string name="north">north</string>
+		<string name="zhen">zh_en</string>
+		<string name="quanjing">pano</string>
+		<string name="metro">metro</string>
+		<string name="metro_world_title">World Subway Map</string>
+		<string name="home_cloud_panorama">720 Cloud</string>
+		<string name="world_title">Popular Scenic Panoramas</string>
+		<string name="world_search_placeholder">Search scenic spots, cities, or provinces</string>
+		<string name="world_empty">No scenic spots found</string>
+		<string name="world_source_title">720 Cloud</string>
+		<string name="world_cloud_panorama_title">720 Cloud World Scenic Spots</string>
+		<string name="world_search_entry">Scenic</string>
+		<string name="north">north</string>
 	<string name="satellite">Satellite Beidou Gps Navi System</string>
 	<string name="satellitemap">satellite map</string>
 	<string name="normalmap">normal map</string>

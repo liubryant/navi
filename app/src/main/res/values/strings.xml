@@ -267,6 +267,14 @@
     <string name="zhen">中英地图</string>
     <string name="quanjing">全景</string>
     <string name="metro">地铁</string>
+    <string name="metro_world_title">世界地铁线路图</string>
+    <string name="home_cloud_panorama">720云</string>
+    <string name="world_title">国内热门景区全景</string>
+    <string name="world_search_placeholder">搜索景区、城市或省份</string>
+    <string name="world_empty">未找到相关景点</string>
+    <string name="world_source_title">720云</string>
+    <string name="world_cloud_panorama_title">720云世界景区</string>
+    <string name="world_search_entry">景区</string>
     <string name="north">指北</string>
     <string name="satellite">卫星定位导航系统</string>
     <string name="satellitemap">卫星地图</string>
@@ -288,7 +296,7 @@
     <string name="navi_ui">导航组件<font color='red'>(新)</font></string>
     <string name="blank"></string>
 
-    <string name="navi_start_end_poi_calculate_title">起终点算路</string>
+    <string name="navi_start_end_poi_calculate_title">卫星地图导航</string>
     <string name="navi_start_end_poi_calculate_desc">包含起点和终点的组件算路</string>
     <string name="navi_end_poi_calculate_title">无起点算路</string>
     <string name="navi_end_poi_calculate_desc">无起点有终点的组件算路</string>

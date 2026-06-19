@@ -3,24 +3,49 @@
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="-45dp"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/panodemo_main_title"
+    <LinearLayout
+        android:id="@+id/page_header"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="92dp"
         android:layout_alignParentTop="true"
-        android:layout_centerInParent="true"
-        android:gravity="center"
-        android:text="@string/app_name"
-        android:textColor="#FFFFFFFF"
-        android:textSize="16sp" />
+        android:background="#F5F6F8"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingTop="36dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_back_button"
+            android:padding="9dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_back_chevron" />
+
+        <TextView
+            android:id="@+id/panodemo_main_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/quanjing"
+            android:textColor="#222222"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="42dp"
+            android:layout_height="42dp" />
+    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/panodemo_main_title" >
+        android:layout_alignParentTop="true" >
 
         <com.baidu.lbsapi.panoramaview.PanoramaView
             android:id="@+id/panorama"

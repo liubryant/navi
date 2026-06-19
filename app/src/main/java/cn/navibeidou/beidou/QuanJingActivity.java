@@ -66,6 +66,12 @@ public class QuanJingActivity extends Activity {
         // 先初始化BMapManager
         initBMapManager();
         setContentView(R.layout.panodemo_main);
+        findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         initView();
 
@@ -85,6 +91,7 @@ public class QuanJingActivity extends Activity {
 //            longitude = 123.0012;
             Log.e("navi", "quanjing  latitude  " + latitude + "  longitude  " + longitude);
             testPanoByType(intent.getIntExtra("type", -1));
+            textTitle.setText("附近街景");
         }
     }
 

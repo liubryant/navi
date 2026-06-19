@@ -112,6 +112,12 @@ public class PoiAroundSearchActivity extends Activity implements OnClickListener
         Log.e(ERROR_TAG, "PoiAroundSearchActivity onCreate city=" + city
                 + ", lat=" + latitude + ", lon=" + longitude);
         StatusNavUtils.setStatusBarColor(this, 0x33000000);
+        findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         privacyCompliance();
         mapview = (MapView) findViewById(R.id.mapView);
         mapview.onCreate(savedInstanceState);
