@@ -5,20 +5,26 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bytedance.sdk.openadsdk.TTDrawFeedAd;
+import com.bytedance.sdk.openadsdk.TTNativeAd;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.navibeidou.beidou.toutiao.DrawFeedAdLoader;
 import cn.navibeidou.beidou.translucentparent.StatusNavUtils;
 import cn.navibeidou.beidou.world.WorldPanoramaPlace;
 
@@ -30,6 +36,7 @@ public class WorldPanoramaActivity extends Activity {
     private PlaceAdapter adapter;
     private String selectedCategory = WorldPanoramaPlace.CATEGORIES[0];
     private final List<TextView> categoryButtons = new ArrayList<TextView>();
+    private final List<TTDrawFeedAd> loadedDrawAds = new ArrayList<TTDrawFeedAd>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +59,9 @@ public class WorldPanoramaActivity extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (adapter.getItemViewType(position) != PlaceAdapter.VIEW_TYPE_PLACE) {
+                    return;
+                }
                 WorldPanoramaPlace place = adapter.getItem(position);
                 Intent intent = new Intent(WorldPanoramaActivity.this, WorldPanoramaDetailActivity.class);
                 intent.putExtra("name", place.name);
@@ -119,6 +129,7 @@ public class WorldPanoramaActivity extends Activity {
             if (place.matches(query)) result.add(place);
         }
         adapter.setItems(result);
+        Log.d("naviad", "WorldPanorama result.size()=" + result.size() + " adapter.getCount()=" + adapter.getCount());
         boolean empty = result.isEmpty();
         listView.setVisibility(empty ? View.GONE : View.VISIBLE);
         emptyView.setVisibility(empty ? View.VISIBLE : View.GONE);
@@ -128,7 +139,20 @@ public class WorldPanoramaActivity extends Activity {
         return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for (TTDrawFeedAd ad : loadedDrawAds) {
+            ad.destroy();
+        }
+        loadedDrawAds.clear();
+    }
+
     private class PlaceAdapter extends BaseAdapter {
+        static final int VIEW_TYPE_PLACE = 0;
+        static final int VIEW_TYPE_AD = 1;
+        private static final int AD_INTERVAL = 4;
+
         private final List<WorldPanoramaPlace> items = new ArrayList<WorldPanoramaPlace>();
 
         void setItems(List<WorldPanoramaPlace> newItems) {
@@ -137,12 +161,43 @@ public class WorldPanoramaActivity extends Activity {
             notifyDataSetChanged();
         }
 
-        @Override public int getCount() { return items.size(); }
-        @Override public WorldPanoramaPlace getItem(int position) { return items.get(position); }
+        private boolean isAdPosition(int position) {
+            return position % (AD_INTERVAL + 1) == AD_INTERVAL;
+        }
+
+        private int realIndexForPosition(int position) {
+            int block = position / (AD_INTERVAL + 1);
+            int offset = position % (AD_INTERVAL + 1);
+            return block * AD_INTERVAL + offset;
+        }
+
+        private int adSlotIndexForPosition(int position) {
+            return position / (AD_INTERVAL + 1);
+        }
+
+        @Override public int getViewTypeCount() { return 2; }
+        @Override public int getItemViewType(int position) {
+            return isAdPosition(position) ? VIEW_TYPE_AD : VIEW_TYPE_PLACE;
+        }
+
+        @Override
+        public int getCount() {
+            int n = items.size();
+            return n + n / AD_INTERVAL;
+        }
+
+        @Override
+        public WorldPanoramaPlace getItem(int position) {
+            return isAdPosition(position) ? null : items.get(realIndexForPosition(position));
+        }
+
         @Override public long getItemId(int position) { return position; }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            if (isAdPosition(position)) {
+                return getAdView(position, convertView, parent);
+            }
             ViewHolder holder;
             if (convertView == null) {
                 convertView = LayoutInflater.from(WorldPanoramaActivity.this)
@@ -157,7 +212,7 @@ public class WorldPanoramaActivity extends Activity {
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            WorldPanoramaPlace place = getItem(position);
+            WorldPanoramaPlace place = items.get(realIndexForPosition(position));
             holder.image.setVisibility(View.VISIBLE);
             holder.image.setImageResource(place.coverResId);
             holder.thumb.setVisibility(View.GONE);
@@ -165,6 +220,63 @@ public class WorldPanoramaActivity extends Activity {
             holder.region.setText(place.subtitle());
             holder.summary.setText(WorldPanoramaPlace.SUMMARY);
             return convertView;
+        }
+
+        private View getAdView(int position, View convertView, ViewGroup parent) {
+            final FrameLayout container = convertView != null
+                    ? (FrameLayout) convertView
+                    : (FrameLayout) LayoutInflater.from(WorldPanoramaActivity.this)
+                            .inflate(R.layout.item_draw_feed_ad, parent, false);
+            final int slotIndex = adSlotIndexForPosition(position);
+            final View progress = container.findViewById(R.id.draw_ad_progress);
+            Object tag = container.getTag();
+            Log.d("naviad", "WorldPanorama getAdView position=" + position + " slotIndex=" + slotIndex + " 已有tag=" + tag + " 子View数=" + container.getChildCount());
+            if (tag instanceof Integer && (Integer) tag == slotIndex && container.getChildCount() > 1) {
+                Log.d("naviad", "WorldPanorama 复用已加载的广告 slotIndex=" + slotIndex);
+                progress.setVisibility(View.GONE);
+                return container;
+            }
+            container.setTag(slotIndex);
+            if (container.getChildCount() > 1) {
+                container.removeViewAt(1);
+            }
+            container.setBackgroundColor(0xFF000000);
+            progress.setVisibility(View.VISIBLE);
+            Log.d("naviad", "WorldPanorama 开始为slotIndex=" + slotIndex + " 加载新广告");
+            DrawFeedAdLoader.load(WorldPanoramaActivity.this, new DrawFeedAdLoader.Callback() {
+                @Override
+                public void onLoaded(TTDrawFeedAd ad, View adView) {
+                    Log.d("naviad", "WorldPanorama onLoaded slotIndex=" + slotIndex + " 当前容器tag=" + container.getTag());
+                    Object currentTag = container.getTag();
+                    if (!(currentTag instanceof Integer) || (Integer) currentTag != slotIndex) {
+                        Log.w("naviad", "WorldPanorama 广告加载完成但容器已复用给别的slot，放弃 slotIndex=" + slotIndex);
+                        ad.destroy();
+                        return;
+                    }
+                    if (container.getChildCount() > 1) {
+                        container.removeViewAt(1);
+                    }
+                    container.addView(adView, new FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+                    container.setBackground(null);
+                    progress.setVisibility(View.GONE);
+                    ad.registerViewForInteraction(container, adView, new TTNativeAd.AdInteractionListener() {
+                        @Override public void onAdClicked(View view, TTNativeAd nativeAd) {}
+                        @Override public void onAdCreativeClick(View view, TTNativeAd nativeAd) {}
+                        @Override public void onAdShow(TTNativeAd nativeAd) {}
+                    });
+                    loadedDrawAds.add(ad);
+                    Log.d("naviad", "WorldPanorama 广告View已添加到容器 slotIndex=" + slotIndex);
+                }
+
+                @Override
+                public void onFailed() {
+                    Log.w("naviad", "WorldPanorama 广告加载失败 slotIndex=" + slotIndex);
+                    container.setBackground(null);
+                    progress.setVisibility(View.GONE);
+                }
+            });
+            return container;
         }
     }
 

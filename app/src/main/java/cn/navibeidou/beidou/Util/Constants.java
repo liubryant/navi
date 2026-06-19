@@ -12,6 +12,7 @@ public class Constants {
     public static String INTERACTION_ID = "947793385";
     public static String BANNER_ID = "946064612";
     public static String STREAM_ID = "945690844";
+    public static String DRAW_FEED_ID = "984058808";
 
   public static String city = "北京";
   public static boolean isCloseAd = false;

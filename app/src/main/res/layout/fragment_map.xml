@@ -34,7 +34,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:background="@color/transparent"
-                    android:drawableTop="@drawable/ic_cloud_panorama"
+                    android:drawableTop="@drawable/ic_right_cloud"
                     android:drawablePadding="3dp"
                     android:gravity="center"
                     android:includeFontPadding="false"
@@ -50,7 +50,7 @@
 	                    android:layout_gravity="center_horizontal"
 	                    android:layout_marginTop="18dp"
 	                    android:background="@color/transparent"
-	                    android:drawableTop="@drawable/search_poi"
+	                    android:drawableTop="@drawable/ic_right_search"
 	                    android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/find"
@@ -65,7 +65,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="10dp"
                     android:background="@color/transparent"
-                    android:drawableTop="@drawable/weather"
+                    android:drawableTop="@drawable/ic_right_weather"
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/weather"
@@ -80,7 +80,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="10dp"
                     android:background="@color/transparent"
-                    android:drawableTop="@drawable/traffic"
+                    android:drawableTop="@drawable/ic_right_traffic"
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/road"
@@ -95,7 +95,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="10dp"
                     android:background="@color/transparent"
-                    android:drawableTop="@drawable/icon01"
+                    android:drawableTop="@drawable/ic_right_bilingual"
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/zhen"
@@ -211,7 +211,7 @@
 
                     <ImageView
                         android:id="@+id/iv_tab_explore"
-                        android:layout_width="46dp"
+                        android:layout_width="60dp"
                         android:layout_height="30dp"
                         android:padding="5dp"
                         android:src="@drawable/ic_tab_explore" />
@@ -238,7 +238,7 @@
 
                     <ImageView
                         android:id="@+id/iv_tab_cloud"
-                        android:layout_width="46dp"
+                        android:layout_width="60dp"
                         android:layout_height="30dp"
                         android:padding="5dp"
                         android:src="@drawable/ic_cloud_panorama" />
@@ -266,7 +266,7 @@
 
                     <ImageView
                         android:id="@+id/iv_tab_mine"
-                        android:layout_width="46dp"
+                        android:layout_width="60dp"
                         android:layout_height="30dp"
                         android:padding="5dp"
                         android:src="@drawable/ic_tab_mine" />

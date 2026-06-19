@@ -38,14 +38,14 @@
             android:layout_height="42dp" />
     </LinearLayout>
 
-    <GridView
+    <ListView
         android:id="@+id/list_cloud"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:cacheColorHint="#00000000"
         android:clipToPadding="false"
-        android:horizontalSpacing="12dp"
-        android:numColumns="2"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="12dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:paddingBottom="16dp" />

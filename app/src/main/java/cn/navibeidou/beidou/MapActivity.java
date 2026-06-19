@@ -576,7 +576,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                 if (firstMove && isMapAvailable()) {
                     firstMove = false;
                     Log.i("navi", "moveCamera");
-                    aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 13));
+                    aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 16));
                 }
                 String time = TimeStringUtil.longToDate(amapLocation.getTime());
                 Log.i("navi", "city  " + city + "  currentLat  " + currentLat + "  currentLon  " + currentLon + "  time  " + time);

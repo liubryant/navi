@@ -3,20 +3,29 @@ package cn.navibeidou.beidou;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bytedance.sdk.openadsdk.TTDrawFeedAd;
+import com.bytedance.sdk.openadsdk.TTNativeAd;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.navibeidou.beidou.toutiao.DrawFeedAdLoader;
 import cn.navibeidou.beidou.translucentparent.StatusNavUtils;
 import cn.navibeidou.beidou.world.CloudPanoramaItem;
 
 public class CloudPanoramaActivity extends Activity {
     private CloudPanoramaItem[] items;
+    private final List<TTDrawFeedAd> loadedDrawAds = new ArrayList<TTDrawFeedAd>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,36 +36,156 @@ public class CloudPanoramaActivity extends Activity {
         findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { finish(); }
         });
-        GridView gridView = findViewById(R.id.list_cloud);
-        gridView.setAdapter(new CloudAdapter());
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                CloudPanoramaItem item = items[position];
-                Intent intent = new Intent(CloudPanoramaActivity.this, CloudWebActivity.class);
-                intent.putExtra("title", item.title);
-                intent.putExtra("url", item.url);
-                startActivity(intent);
-            }
-        });
+        ListView listView = findViewById(R.id.list_cloud);
+        CloudAdapter adapter = new CloudAdapter();
+        listView.setAdapter(adapter);
+        Log.d("naviad", "CloudPanorama items.length=" + items.length + " adapter.getCount()=" + adapter.getCount());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for (TTDrawFeedAd ad : loadedDrawAds) {
+            ad.destroy();
+        }
+        loadedDrawAds.clear();
+    }
+
+    private void openItem(CloudPanoramaItem item) {
+        Intent intent = new Intent(CloudPanoramaActivity.this, CloudWebActivity.class);
+        intent.putExtra("title", item.title);
+        intent.putExtra("url", item.url);
+        startActivity(intent);
     }
 
     private class CloudAdapter extends BaseAdapter {
-        @Override public int getCount() { return items.length; }
-        @Override public Object getItem(int position) { return items[position]; }
+        private static final int AD_INTERVAL = 4;
+
+        private boolean isAdRow(int position) {
+            return position % 3 == 2;
+        }
+
+        private int pairRowIndexForPosition(int position) {
+            int block = position / 3;
+            int offset = position % 3;
+            return block * 2 + offset;
+        }
+
+        private int adSlotIndexForPosition(int position) {
+            return position / 3;
+        }
+
+        @Override public int getViewTypeCount() { return 2; }
+        @Override public int getItemViewType(int position) {
+            return isAdRow(position) ? 1 : 0;
+        }
+
+        @Override
+        public int getCount() {
+            int n = items.length;
+            int pairRows = (n + 1) / 2;
+            int adRows = n / AD_INTERVAL;
+            return pairRows + adRows;
+        }
+
+        @Override public Object getItem(int position) { return null; }
         @Override public long getItemId(int position) { return position; }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = LayoutInflater.from(CloudPanoramaActivity.this)
-                        .inflate(R.layout.item_cloud_panorama, parent, false);
+            if (isAdRow(position)) {
+                return getAdRowView(position, convertView, parent);
             }
-            CloudPanoramaItem item = items[position];
-            ImageView imageView = convertView.findViewById(R.id.iv_cover);
-            imageView.setImageResource(item.coverResId);
-            ((TextView) convertView.findViewById(R.id.tv_title)).setText(item.title);
-            return convertView;
+            return getPairRowView(position, convertView, parent);
+        }
+
+        private View getPairRowView(int position, View convertView, ViewGroup parent) {
+            View row = convertView != null
+                    ? convertView
+                    : LayoutInflater.from(CloudPanoramaActivity.this)
+                            .inflate(R.layout.item_cloud_panorama_row, parent, false);
+            int pairRowIndex = pairRowIndexForPosition(position);
+            int leftIndex = pairRowIndex * 2;
+            int rightIndex = leftIndex + 1;
+            bindSlot(row, R.id.slot_left, R.id.iv_cover_left, R.id.tv_title_left, leftIndex);
+            bindSlot(row, R.id.slot_right, R.id.iv_cover_right, R.id.tv_title_right, rightIndex);
+            return row;
+        }
+
+        private void bindSlot(View row, int slotId, int imageId, int titleId, final int itemIndex) {
+            View slot = row.findViewById(slotId);
+            if (itemIndex >= items.length) {
+                slot.setVisibility(View.INVISIBLE);
+                slot.setOnClickListener(null);
+                return;
+            }
+            slot.setVisibility(View.VISIBLE);
+            final CloudPanoramaItem item = items[itemIndex];
+            ((ImageView) row.findViewById(imageId)).setImageResource(item.coverResId);
+            ((TextView) row.findViewById(titleId)).setText(item.title);
+            slot.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openItem(item);
+                }
+            });
+        }
+
+        private View getAdRowView(int position, View convertView, ViewGroup parent) {
+            final FrameLayout container = convertView != null
+                    ? (FrameLayout) convertView
+                    : (FrameLayout) LayoutInflater.from(CloudPanoramaActivity.this)
+                            .inflate(R.layout.item_draw_feed_ad_grid, parent, false);
+            final int slotIndex = adSlotIndexForPosition(position);
+            final View progress = container.findViewById(R.id.draw_ad_progress);
+            Object tag = container.getTag();
+            Log.d("naviad", "CloudPanorama getAdRowView position=" + position + " slotIndex=" + slotIndex + " 已有tag=" + tag + " 子View数=" + container.getChildCount());
+            if (tag instanceof Integer && (Integer) tag == slotIndex && container.getChildCount() > 1) {
+                Log.d("naviad", "CloudPanorama 复用已加载的广告 slotIndex=" + slotIndex);
+                progress.setVisibility(View.GONE);
+                return container;
+            }
+            container.setTag(slotIndex);
+            if (container.getChildCount() > 1) {
+                container.removeViewAt(1);
+            }
+            container.setBackgroundColor(0xFF000000);
+            progress.setVisibility(View.VISIBLE);
+            Log.d("naviad", "CloudPanorama 开始为slotIndex=" + slotIndex + " 加载新广告");
+            DrawFeedAdLoader.load(CloudPanoramaActivity.this, new DrawFeedAdLoader.Callback() {
+                @Override
+                public void onLoaded(TTDrawFeedAd ad, View adView) {
+                    Log.d("naviad", "CloudPanorama onLoaded slotIndex=" + slotIndex + " 当前容器tag=" + container.getTag());
+                    Object currentTag = container.getTag();
+                    if (!(currentTag instanceof Integer) || (Integer) currentTag != slotIndex) {
+                        Log.w("naviad", "CloudPanorama 广告加载完成但容器已复用给别的slot，放弃 slotIndex=" + slotIndex);
+                        ad.destroy();
+                        return;
+                    }
+                    if (container.getChildCount() > 1) {
+                        container.removeViewAt(1);
+                    }
+                    container.addView(adView, new FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+                    container.setBackground(null);
+                    progress.setVisibility(View.GONE);
+                    ad.registerViewForInteraction(container, adView, new TTNativeAd.AdInteractionListener() {
+                        @Override public void onAdClicked(View view, TTNativeAd nativeAd) {}
+                        @Override public void onAdCreativeClick(View view, TTNativeAd nativeAd) {}
+                        @Override public void onAdShow(TTNativeAd nativeAd) {}
+                    });
+                    loadedDrawAds.add(ad);
+                    Log.d("naviad", "CloudPanorama 广告View已添加到容器 slotIndex=" + slotIndex);
+                }
+
+                @Override
+                public void onFailed() {
+                    Log.w("naviad", "CloudPanorama 广告加载失败 slotIndex=" + slotIndex);
+                    container.setBackground(null);
+                    progress.setVisibility(View.GONE);
+                }
+            });
+            return container;
         }
     }
 }
