@@ -55,19 +55,21 @@
         android:padding="10dp">
 
         <TextView
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="@string/currentnow"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
 
         <TextView
             android:id="@+id/reporttime1"
-            android:layout_width="fill_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="right"
+            android:layout_marginLeft="8dp"
+            android:ellipsize="end"
+            android:gravity="left"
+            android:singleLine="true"
             android:text="@string/publish"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
@@ -131,19 +133,21 @@
         android:padding="10dp">
 
         <TextView
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="@string/report"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
 
         <TextView
             android:id="@+id/reporttime2"
-            android:layout_width="fill_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="right"
+            android:layout_marginLeft="8dp"
+            android:ellipsize="end"
+            android:gravity="left"
+            android:singleLine="true"
             android:text="@string/publish"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />

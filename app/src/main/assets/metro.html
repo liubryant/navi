@@ -82,6 +82,14 @@
                 }
             });
 
+            if (window.AndroidCityBridge && window.AndroidCityBridge.onCitiesLoaded) {
+                var cityNames = [];
+                for (var i = 0; i < picker.options.length; i++) {
+                    cityNames.push(picker.options[i].text);
+                }
+                window.AndroidCityBridge.onCitiesLoaded(JSON.stringify(cityNames));
+            }
+
             var initialCode = matchedCode || fallbackCode || (picker.options.length > 0 ? picker.options[0].value : null);
             if (!initialCode) {
                 document.getElementById("loading").innerText = "暂无可用地铁城市数据";

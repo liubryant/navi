@@ -4,7 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -16,20 +18,30 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import cn.navibeidou.beidou.translucentparent.StatusNavUtils;
 
 public class JsActivity extends Activity {
-    private static final String[] SUBWAY_CITIES = {
+    // 网页加载完整地铁城市列表前的默认展示，加载完成后会被 metro.html 回传的完整列表替换
+    private static final String[] DEFAULT_SUBWAY_CITIES = {
             "深圳", "北京", "上海", "广州", "成都", "武汉", "杭州", "南京", "重庆", "天津",
             "西安", "苏州", "郑州", "长沙", "青岛", "宁波", "无锡", "沈阳", "大连", "厦门",
             "福州", "昆明", "南宁", "合肥", "南昌", "石家庄", "哈尔滨", "长春", "贵阳", "佛山"
     };
+    private final List<String> cityNames = new ArrayList<>(Arrays.asList(DEFAULT_SUBWAY_CITIES));
+    private Spinner citySpinner;
+    private ArrayAdapter<String> cityAdapter;
     private WebView webView;
     private boolean metroPageLoaded = false;
     private String message;
@@ -80,21 +92,22 @@ public class JsActivity extends Activity {
 //        webView.addJavascriptInterface(new JSInterface(), "adcode");
 //        webView.addJavascriptInterface(jsInterface, "jsObj");
 //        webView.loadUrl("http://cocos-games.fir.show/games/0000079-basketball-2.4.4/index.html");
+        webView.addJavascriptInterface(new CityListBridge(), "AndroidCityBridge");
         loadMetroPage();
         settings.setDefaultZoom(WebSettings.ZoomDensity.CLOSE);
     }
 
     private void setupCitySpinner() {
-        Spinner spinner = findViewById(R.id.sp_city);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, SUBWAY_CITIES);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setSelection(0);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        citySpinner = findViewById(R.id.sp_city);
+        cityAdapter = new ArrayAdapter<>(this, R.layout.spinner_item_city, cityNames);
+        cityAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_city);
+        citySpinner.setAdapter(cityAdapter);
+        citySpinner.setSelection(0);
+        citySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (webView == null) return;
-                String city = SUBWAY_CITIES[position];
+                if (webView == null || position < 0 || position >= cityNames.size()) return;
+                String city = cityNames.get(position);
                 webView.evaluateJavascript("window.setSubwayCityByName && window.setSubwayCityByName('" + city + "')", null);
             }
 
@@ -102,6 +115,49 @@ public class JsActivity extends Activity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+    }
+
+    /**
+     * metro.html 中地铁城市列表 (BMapSub.SubwayCitiesList) 加载完成后，通过此接口把完整列表回传给原生 Spinner，
+     * 避免原生侧固定城市数组比网页端实际可选城市更少。
+     */
+    private void applyFullCityList(String namesJson) {
+        try {
+            JSONArray array = new JSONArray(namesJson);
+            List<String> names = new ArrayList<>();
+            for (int i = 0; i < array.length(); i++) {
+                String name = array.optString(i, null);
+                if (name != null && !name.isEmpty()) {
+                    names.add(name);
+                }
+            }
+            if (names.isEmpty() || cityAdapter == null || citySpinner == null) return;
+
+            int previousPosition = citySpinner.getSelectedItemPosition();
+            String previouslySelected = previousPosition >= 0 && previousPosition < cityNames.size()
+                    ? cityNames.get(previousPosition) : null;
+
+            cityNames.clear();
+            cityNames.addAll(names);
+            cityAdapter.notifyDataSetChanged();
+
+            int newPosition = previouslySelected != null ? names.indexOf(previouslySelected) : -1;
+            citySpinner.setSelection(newPosition >= 0 ? newPosition : 0);
+        } catch (JSONException e) {
+            Log.w("navi", "parse subway city list failed", e);
+        }
+    }
+
+    private class CityListBridge {
+        @JavascriptInterface
+        public void onCitiesLoaded(final String namesJson) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    applyFullCityList(namesJson);
+                }
+            });
+        }
     }
 
     private void loadMetroPage() {

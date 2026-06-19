@@ -30,20 +30,18 @@
 
                 <TextView
                     android:id="@+id/tv_cloud_top"
-                    android:layout_width="58dp"
-                    android:layout_height="62dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:background="@drawable/bg_cloud_home_button"
+                    android:background="@color/transparent"
                     android:drawableTop="@drawable/ic_cloud_panorama"
                     android:drawablePadding="3dp"
-                    android:elevation="6dp"
                     android:gravity="center"
                     android:includeFontPadding="false"
                     android:singleLine="true"
                     android:text="@string/home_cloud_panorama"
-                    android:textColor="#1677FF"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
 
 	                <TextView
 	                    android:id="@+id/tv_poi"
@@ -194,18 +192,93 @@
             <LinearLayout
                 android:id="@+id/ll_bottom"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:background="#efffffff"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/tab_explore"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/satellite"
-                    android:textColor="#1a1a1a"
-                    android:textSize="12sp" />
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingTop="2dp"
+                    android:layout_marginLeft="12dp"
+                    android:paddingBottom="16dp">
+
+                    <ImageView
+                        android:id="@+id/iv_tab_explore"
+                        android:layout_width="46dp"
+                        android:layout_height="30dp"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_tab_explore" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/tab_explore"
+                        android:textColor="#333333"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tab_cloud"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="16dp">
+
+                    <ImageView
+                        android:id="@+id/iv_tab_cloud"
+                        android:layout_width="46dp"
+                        android:layout_height="30dp"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_cloud_panorama" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/home_cloud_panorama"
+                        android:textColor="#333333"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tab_mine"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:layout_marginRight="12dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="16dp">
+
+                    <ImageView
+                        android:id="@+id/iv_tab_mine"
+                        android:layout_width="46dp"
+                        android:layout_height="30dp"
+                        android:padding="5dp"
+                        android:src="@drawable/ic_tab_mine" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/tab_mine"
+                        android:textColor="#333333"
+                        android:textSize="10sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <RelativeLayout

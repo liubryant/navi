@@ -101,6 +101,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     private Context mContext;
     MapView mMapView = null;
     LinearLayout ll_service, ll_yinsi, ll_feedback, ll_normal, ll_satellite, ll_bus, ll_quanjian, ll_weather_left;
+    LinearLayout tab_explore, tab_cloud, tab_mine;
     AMap aMap;
     RouteSearch routeSearch;
     private volatile boolean mMapRenderFailed = false;
@@ -117,6 +118,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     GeocodeSearch geocodeSearch;
 
     private ImageView iv_normal, iv_satellite, iv_bus;
+    private ImageView iv_tab_explore, iv_tab_cloud, iv_tab_mine;
     private TextView input_edittext, tv_traffic, tv_poi, tv_weather, tv_vedio, tv_title, tv_metro, tv_north, tv_quanjin, tv_world_panorama, tv_current_location, tv_game, tv_cloud_top;
     private boolean trafficVisible = false;
     private boolean isEn = false;
@@ -304,6 +306,16 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         tv_world_panorama = findViewById(R.id.tv_world_panorama);
         tv_game = findViewById(R.id.tv_game);
         tv_cloud_top = findViewById(R.id.tv_cloud_top);
+        tab_explore = findViewById(R.id.tab_explore);
+        tab_cloud = findViewById(R.id.tab_cloud);
+        tab_mine = findViewById(R.id.tab_mine);
+        iv_tab_explore = findViewById(R.id.iv_tab_explore);
+        iv_tab_cloud = findViewById(R.id.iv_tab_cloud);
+        iv_tab_mine = findViewById(R.id.iv_tab_mine);
+        tab_explore.setOnClickListener(this);
+        tab_cloud.setOnClickListener(this);
+        tab_mine.setOnClickListener(this);
+        selectBottomTab(tab_explore);
         tv_title.setText(getString(R.string.app_name) + "V" + getVersionName(mContext));
         input_edittext.setOnClickListener(this);
         tv_traffic.setOnClickListener(this);
@@ -319,6 +331,12 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         ll_service.setOnClickListener(this);
         ll_yinsi.setOnClickListener(this);
         ll_feedback.setOnClickListener(this);
+    }
+
+    private void selectBottomTab(LinearLayout active) {
+        iv_tab_explore.setBackgroundResource(active == tab_explore ? R.drawable.bg_tab_icon_selected : 0);
+        iv_tab_cloud.setBackgroundResource(active == tab_cloud ? R.drawable.bg_tab_icon_selected : 0);
+        iv_tab_mine.setBackgroundResource(active == tab_mine ? R.drawable.bg_tab_icon_selected : 0);
     }
 
     private void initSlide() {
@@ -558,7 +576,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                 if (firstMove && isMapAvailable()) {
                     firstMove = false;
                     Log.i("navi", "moveCamera");
-                    aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 18));
+                    aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 13));
                 }
                 String time = TimeStringUtil.longToDate(amapLocation.getTime());
                 Log.i("navi", "city  " + city + "  currentLat  " + currentLat + "  currentLon  " + currentLon + "  time  " + time);
@@ -870,6 +888,21 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
             case R.id.tv_cloud_top:
                 startActivity(new Intent(MapActivity.this, CloudPanoramaActivity.class));
                 break;
+            case R.id.tab_explore:
+                selectBottomTab(tab_explore);
+                break;
+            case R.id.tab_cloud:
+                selectBottomTab(tab_cloud);
+                startActivity(new Intent(MapActivity.this, CloudPanoramaActivity.class));
+                break;
+            case R.id.tab_mine:
+                selectBottomTab(tab_mine);
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    drawerLayout.openDrawer(GravityCompat.START);
+                }
+                break;
             case R.id.toolbar:
                 changeSlide();
                 break;
@@ -877,18 +910,12 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                 if (!requireMapAvailable()) {
                     break;
                 }
-                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                } else {
-                    drawerLayout.openDrawer(GravityCompat.START);
-                }
                 cameraPosition1 = aMap.getCameraPosition();
                 LatLng northTarget = resolveLaunchLocation();
                 if (northTarget == null) {
                     northTarget = cameraPosition1.target;
                 }
-                aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(northTarget, cameraPosition1.zoom, cameraPosition1.tilt, -15f)));
-                mHandler.sendEmptyMessageDelayed(0, 200);
+                aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(northTarget, cameraPosition1.zoom, cameraPosition1.tilt, cameraPosition1.bearing)));
                 break;
             case R.id.tv_quanjin:
             case R.id.ll_quanjian:

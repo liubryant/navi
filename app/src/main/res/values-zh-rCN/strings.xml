@@ -10,8 +10,8 @@
 	<string name="i">i</string>
 	<string name="tab_loc">卫星定位</string>
 	<string name="tab_option">我的导航</string>
-	<string name="find">附近</string>
-	<string name="weather">天气</string>
+	<string name="find">附近搜索</string>
+	<string name="weather">定位天气</string>
 	<string name="road">路况</string>
 	<string name="inputsearchplace">请输入终点</string>
 	<string name="beginsearch">开始搜索</string>

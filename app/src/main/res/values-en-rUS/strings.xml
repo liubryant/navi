@@ -10,8 +10,8 @@
 	<string name="i">i</string>
 	<string name="tab_loc">BeiDouSatellite</string>
 	<string name="tab_option">MyNavigation</string>
-	<string name="find">Find</string>
-	<string name="weather">Weather</string>
+	<string name="find">Nearby Search</string>
+	<string name="weather">Local Weather</string>
 	<string name="road">Road</string>
 	<string name="inputsearchplace">Please Input Search Place</string>
 	<string name="beginsearch">Search</string>
@@ -43,8 +43,9 @@
 		<string name="world_source_title">720 Cloud</string>
 		<string name="world_cloud_panorama_title">720 Cloud World Scenic Spots</string>
 		<string name="world_search_entry">Scenic</string>
-		<string name="north">north</string>
-	<string name="satellite">Satellite Beidou Gps Navi System</string>
+		<string name="north">Locate</string>
+		<string name="tab_explore">Explore</string>
+		<string name="tab_mine">Me</string>
 	<string name="satellitemap">satellite map</string>
 	<string name="normalmap">normal map</string>
 	<string name="busmap">bus map</string>

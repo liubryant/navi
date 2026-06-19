@@ -9,8 +9,8 @@
     <string name="i">i</string>
     <string name="tab_loc">卫星定位</string>
     <string name="tab_option">我的导航</string>
-    <string name="find">附近</string>
-    <string name="weather">天气</string>
+    <string name="find">附近搜索</string>
+    <string name="weather">定位天气</string>
     <string name="road">路况</string>
     <string name="inputsearchplace">请输入终点</string>
     <string name="beginsearch">开始搜索</string>
@@ -275,8 +275,9 @@
     <string name="world_source_title">720云</string>
     <string name="world_cloud_panorama_title">720云世界景区</string>
     <string name="world_search_entry">景区</string>
-    <string name="north">指北</string>
-    <string name="satellite">卫星定位导航系统</string>
+    <string name="north">定位</string>
+    <string name="tab_explore">探索</string>
+    <string name="tab_mine">我</string>
     <string name="satellitemap">卫星地图</string>
     <string name="normalmap">标准地图</string>
     <string name="busmap">公交地图</string>
