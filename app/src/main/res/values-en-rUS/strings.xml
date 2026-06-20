@@ -37,11 +37,14 @@
 		<string name="metro">metro</string>
 		<string name="metro_world_title">World Subway Map</string>
 		<string name="home_cloud_panorama">720 Cloud</string>
+		<string name="tab_cloud_panorama">720 Cloud Scenic</string>
 		<string name="world_title">Popular Scenic Panoramas</string>
 		<string name="world_search_placeholder">Search scenic spots, cities, or provinces</string>
 		<string name="world_empty">No scenic spots found</string>
 		<string name="world_source_title">720 Cloud</string>
 		<string name="world_cloud_panorama_title">720 Cloud World Scenic Spots</string>
+		<string name="cloud_search_placeholder">Search world 720 panoramas, tours, attractions</string>
+		<string name="cloud_empty">No panoramas found</string>
 		<string name="world_search_entry">Scenic</string>
 		<string name="north">Locate</string>
 		<string name="tab_explore">Explore</string>

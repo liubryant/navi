@@ -12,11 +12,26 @@
         android:background="@drawable/bg_world_card"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/iv_cover_left"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="126dp"
-            android:scaleType="centerCrop" />
+            android:layout_height="126dp">
+
+            <ImageView
+                android:id="@+id/iv_cover_left"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+
+            <ImageView
+                android:id="@+id/iv_favorite_left"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="top|right"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_favorite_button"
+                android:padding="5dp"
+                android:src="@drawable/ic_favorite_border" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tv_title_left"
@@ -45,11 +60,26 @@
         android:background="@drawable/bg_world_card"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/iv_cover_right"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="126dp"
-            android:scaleType="centerCrop" />
+            android:layout_height="126dp">
+
+            <ImageView
+                android:id="@+id/iv_cover_right"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+
+            <ImageView
+                android:id="@+id/iv_favorite_right"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="top|right"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_favorite_button"
+                android:padding="5dp"
+                android:src="@drawable/ic_favorite_border" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tv_title_right"

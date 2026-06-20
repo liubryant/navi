@@ -140,8 +140,20 @@ public class WorldPanoramaActivity extends Activity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        if (isFinishing()) {
+            destroyLoadedAds();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+        destroyLoadedAds();
+    }
+
+    private void destroyLoadedAds() {
         for (TTDrawFeedAd ad : loadedDrawAds) {
             ad.destroy();
         }

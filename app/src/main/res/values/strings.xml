@@ -269,11 +269,14 @@
     <string name="metro">地铁</string>
     <string name="metro_world_title">世界地铁线路图</string>
     <string name="home_cloud_panorama">720云</string>
+    <string name="tab_cloud_panorama">720云景</string>
     <string name="world_title">国内热门景区全景</string>
     <string name="world_search_placeholder">搜索景区、城市或省份</string>
     <string name="world_empty">未找到相关景点</string>
     <string name="world_source_title">720云</string>
     <string name="world_cloud_panorama_title">720云世界景区</string>
+    <string name="cloud_search_placeholder">搜索世界720全景、导览、景区</string>
+    <string name="cloud_empty">未找到相关全景</string>
     <string name="world_search_entry">景区</string>
     <string name="north">定位</string>
     <string name="tab_explore">探索</string>

@@ -1,9 +1,9 @@
 buildscript {
     
     repositories {
-        mavenCentral()
-        google()
-        jcenter()
+        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
+        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/google/' }
+        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/jcenter/' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.1.0'
@@ -12,15 +12,13 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenCentral()
-        google()
-        jcenter()
+        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
+        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/google/' }
+        maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/jcenter/' }
         flatDir {
             dirs 'libs'
         }
         maven { url 'https://jitpack.io' }
-        maven { url 'https://dl.bintray.com/umsdk/release' }
-        maven { url 'https://repo1.maven.org/maven2/' }
     }
 }
 
