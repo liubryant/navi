@@ -918,13 +918,15 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                 aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(northTarget, cameraPosition1.zoom, cameraPosition1.tilt, cameraPosition1.bearing)));
                 break;
             case R.id.tv_quanjin:
-            case R.id.ll_quanjian:
                 Intent intentquan = new Intent(MapActivity.this, QuanJingActivity.class);
                 intentquan.putExtra("type", 1);
                 intentquan.putExtra("latitude", currentLat);
                 intentquan.putExtra("longitude", currentLon);
                 Log.e("navi", "latitude  " + currentLat + "  longitude  " + currentLon);
                 startActivity(intentquan);
+                break;
+            case R.id.ll_quanjian:
+                startActivity(new Intent(MapActivity.this, WorldPanoramaActivity.class));
                 break;
             case R.id.tv_game:
                 //进来第二次播放一次全屏ad

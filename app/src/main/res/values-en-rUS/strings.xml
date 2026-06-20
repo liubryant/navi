@@ -50,7 +50,7 @@
 	<string name="normalmap">normal map</string>
 	<string name="busmap">bus map</string>
 	<string name="serviceprotocol">service protocol</string>
-	<string name="quanjing_left">panorama map</string>
+	<string name="quanjing_left">Scenic Panorama</string>
 	<string name="weather_left">gps weather</string>
 	<string name="yinsipolicyprotocol">privacy protocol</string>
 	<string name="userfeedback">user feedback</string>

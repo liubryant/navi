@@ -59,20 +59,22 @@ public class CloudPanoramaActivity extends Activity {
     }
 
     private class CloudAdapter extends BaseAdapter {
-        private static final int AD_INTERVAL = 4;
+        private static final int AD_INTERVAL = 6;
+        private static final int PAIR_ROWS_PER_BLOCK = AD_INTERVAL / 2;
+        private static final int BLOCK_SIZE = PAIR_ROWS_PER_BLOCK + 1;
 
         private boolean isAdRow(int position) {
-            return position % 3 == 2;
+            return position % BLOCK_SIZE == PAIR_ROWS_PER_BLOCK;
         }
 
         private int pairRowIndexForPosition(int position) {
-            int block = position / 3;
-            int offset = position % 3;
-            return block * 2 + offset;
+            int block = position / BLOCK_SIZE;
+            int offset = position % BLOCK_SIZE;
+            return block * PAIR_ROWS_PER_BLOCK + offset;
         }
 
         private int adSlotIndexForPosition(int position) {
-            return position / 3;
+            return position / BLOCK_SIZE;
         }
 
         @Override public int getViewTypeCount() { return 2; }
@@ -149,6 +151,7 @@ public class CloudPanoramaActivity extends Activity {
             if (container.getChildCount() > 1) {
                 container.removeViewAt(1);
             }
+            setAdContainerCollapsed(container, false);
             container.setBackgroundColor(0xFF000000);
             progress.setVisibility(View.VISIBLE);
             Log.d("naviad", "CloudPanorama 开始为slotIndex=" + slotIndex + " 加载新广告");
@@ -180,12 +183,24 @@ public class CloudPanoramaActivity extends Activity {
 
                 @Override
                 public void onFailed() {
-                    Log.w("naviad", "CloudPanorama 广告加载失败 slotIndex=" + slotIndex);
+                    Log.w("naviad", "CloudPanorama 广告加载失败，隐藏占位 slotIndex=" + slotIndex);
                     container.setBackground(null);
                     progress.setVisibility(View.GONE);
+                    setAdContainerCollapsed(container, true);
                 }
             });
             return container;
         }
+
+        private void setAdContainerCollapsed(FrameLayout container, boolean collapsed) {
+            ViewGroup.LayoutParams lp = container.getLayoutParams();
+            lp.height = collapsed ? 0 : dp(170);
+            container.setLayoutParams(lp);
+            container.setVisibility(collapsed ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
     }
 }

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ProtocolActivity extends AppCompatActivity {
+    private static final String PRIVACY_POLICY_URL = "https://www.cjym123.cn/privacy_agentclaw.html";
     private Context mContext;
 
     @Override
@@ -31,19 +32,15 @@ public class ProtocolActivity extends AppCompatActivity {
             tv_protocol.setVisibility(View.VISIBLE);
             webView.setVisibility(View.GONE);
         } else if (yinsi) {
-            tv_protocol.setText(getResources().getString(R.string.yinsi));
-            tv_protocol.setVisibility(View.VISIBLE);
-            webView.setVisibility(View.GONE);
-        }
-
-        if (!yinsi) {
+            tv_protocol.setVisibility(View.GONE);
+            webView.setVisibility(View.VISIBLE);
             WebSettings webSettings = webView.getSettings();
             webSettings.setJavaScriptEnabled(true); // 是否支持Javascript，默认false
             webSettings.setSupportMultipleWindows(false);// 是否支持多窗口，默认false
             webSettings.setJavaScriptCanOpenWindowsAutomatically(true);// 是否可用Javascript(window.open)打开窗口，默认false
             webSettings.setDomStorageEnabled(true);
             //访问网页
-            webView.loadUrl("http://cjym123.cn/privacy_navi.html");
+            webView.loadUrl(PRIVACY_POLICY_URL);
             //系统默认会通过手机浏览器打开网页，为了能够直接通过WebView显示网页，则必须设置
             webView.setWebViewClient(new WebViewClient() {
                 @Override

@@ -282,7 +282,7 @@
     <string name="normalmap">标准地图</string>
     <string name="busmap">公交地图</string>
     <string name="weather_left">实时天气</string>
-    <string name="quanjing_left">街景地图</string>
+    <string name="quanjing_left">景区街景</string>
     <string name="serviceprotocol">服务协议</string>
     <string name="yinsipolicyprotocol">隐私政策</string>
     <string name="userfeedback">用户反馈</string>

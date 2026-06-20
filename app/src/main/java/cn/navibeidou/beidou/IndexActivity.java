@@ -58,6 +58,7 @@ import cn.navibeidou.beidou.navi.TruckRouteCalculateActivity;
 import cn.navibeidou.beidou.navi.WalkRouteCalculateActivity;
 import cn.navibeidou.beidou.toutiao.DislikeDialog;
 import cn.navibeidou.beidou.toutiao.config.TTAdManagerHolder;
+import cn.navibeidou.beidou.toutiao.utils.UIUtils;
 import cn.navibeidou.beidou.translucentparent.StatusNavUtils;
 
 /**
@@ -750,8 +751,8 @@ new DemoDetails(R.string.navi_ui_custom_activity, R.string.navi_ui_custom_activi
         }
 
         mExpressContainer.removeAllViews();
-        // Banner广告尺寸固定为 300x250
-        int expressViewWidth = 300;
+        // Banner广告宽度贴边显示，与屏幕宽度一致
+        float expressViewWidth = UIUtils.getScreenWidthDp(this);
         int expressViewHeight = 250;
         Log.d("naviad", "Banner广告尺寸 width: " + expressViewWidth + ", height: " + expressViewHeight);
 

@@ -240,6 +240,7 @@ public class WorldPanoramaActivity extends Activity {
             if (container.getChildCount() > 1) {
                 container.removeViewAt(1);
             }
+            setAdContainerCollapsed(container, false);
             container.setBackgroundColor(0xFF000000);
             progress.setVisibility(View.VISIBLE);
             Log.d("naviad", "WorldPanorama 开始为slotIndex=" + slotIndex + " 加载新广告");
@@ -271,12 +272,20 @@ public class WorldPanoramaActivity extends Activity {
 
                 @Override
                 public void onFailed() {
-                    Log.w("naviad", "WorldPanorama 广告加载失败 slotIndex=" + slotIndex);
+                    Log.w("naviad", "WorldPanorama 广告加载失败，隐藏占位 slotIndex=" + slotIndex);
                     container.setBackground(null);
                     progress.setVisibility(View.GONE);
+                    setAdContainerCollapsed(container, true);
                 }
             });
             return container;
+        }
+
+        private void setAdContainerCollapsed(FrameLayout container, boolean collapsed) {
+            ViewGroup.LayoutParams lp = container.getLayoutParams();
+            lp.height = collapsed ? 0 : dp(192);
+            container.setLayoutParams(lp);
+            container.setVisibility(collapsed ? View.GONE : View.VISIBLE);
         }
     }
 
