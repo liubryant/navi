@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F6F8FB"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="92dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="36dp">
+
+            <ImageButton
+                android:id="@+id/login_back"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:background="@drawable/bg_back_button"
+                android:padding="9dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_back_chevron" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="登录"
+                android:textColor="#172033"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="42dp"
+                android:layout_height="42dp" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/login_phone"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#D9DFEA"
+            android:hint="手机号"
+            android:inputType="phone"
+            android:maxLength="13"
+            android:paddingHorizontal="4dp"
+            android:textColor="#172033"
+            android:textColorHint="#A4ACBA"
+            android:textSize="17sp" />
+
+        <LinearLayout
+            android:id="@+id/login_code_row"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/login_code"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:backgroundTint="#D9DFEA"
+                android:hint="6位验证码"
+                android:inputType="number"
+                android:maxLength="6"
+                android:paddingHorizontal="4dp"
+                android:textColor="#172033"
+                android:textColorHint="#A4ACBA" />
+
+            <Button
+                android:id="@+id/login_get_code"
+                android:layout_width="104dp"
+                android:layout_height="42dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/bg_login_secondary_round"
+                android:text="获取验证码"
+                android:textColor="#1677FF"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/login_password"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:backgroundTint="#D9DFEA"
+            android:hint="密码（至少6位）"
+            android:inputType="textPassword"
+            android:paddingHorizontal="4dp"
+            android:textColor="#172033"
+            android:textColorHint="#A4ACBA"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/login_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="#E5484D"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/login_agreement"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:buttonTint="#1677FF"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text="我已阅读并同意"
+                android:textColor="#667085"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/login_user_agreement"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:gravity="center_vertical"
+                android:text="《用户协议》"
+                android:textColor="#1677FF"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/login_privacy_policy"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:gravity="center_vertical"
+                android:text="《隐私政策》"
+                android:textColor="#1677FF"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/login_submit"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_login_primary_round"
+            android:text="登录"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/login_switch_mode"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_login_text_round"
+            android:text="使用密码登录"
+            android:textColor="#1677FF"
+            android:textSize="14sp" />
+    </LinearLayout>
+</ScrollView>

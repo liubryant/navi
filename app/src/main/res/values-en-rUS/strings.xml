@@ -46,6 +46,14 @@
 		<string name="cloud_search_placeholder">Search world 720 panoramas, tours, attractions</string>
 		<string name="cloud_empty">No panoramas found</string>
 		<string name="world_search_entry">Scenic</string>
+		<string name="cloud_welcome_title">Explore 720 Cloud Scenic Spots</string>
+		<string name="cloud_welcome_message">Mount Everest, Namtso Lake and more stunning panoramas await — step into the 720 Cloud world for an immersive view.</string>
+		<string name="cloud_welcome_more">View More</string>
+		<string name="cloud_welcome_featured_accessibility">Open the Mount Everest and Namtso Lake 720 panorama</string>
+		<string name="cloud_welcome_recommendation">Featured</string>
+		<string name="cloud_welcome_tap_hint">Tap the image to view the panorama</string>
+		<string name="cloud_welcome_source_notice">Panorama content will load from the 720 Cloud website</string>
+		<string name="cloud_welcome_close">Close</string>
 		<string name="north">Locate</string>
 		<string name="tab_explore">Explore</string>
 		<string name="tab_mine">Me</string>

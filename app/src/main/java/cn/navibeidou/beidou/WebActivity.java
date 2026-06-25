@@ -53,11 +53,14 @@ public class WebActivity extends Activity {
         webView.loadDataWithBaseURL("null", temp, mimeType, encoding, "");
 
         //访问网页
+        String url = getIntent().getStringExtra("url");
         boolean feedback = getIntent().getBooleanExtra("feedback", false);
         if (feedback) {
             ll_feedback.setVisibility(View.VISIBLE);
             webView.loadUrl("http://cjym123.cn");
 //            webView.loadUrl("https://map.baidu.com/mobile/webapp/subway/show/city=shenzhen");
+        } else if (url != null && url.length() > 0) {
+            webView.loadUrl(url);
         } else {
             webView.loadUrl("https://blog.csdn.net/qq_37519849/article/details/107434101");
         }

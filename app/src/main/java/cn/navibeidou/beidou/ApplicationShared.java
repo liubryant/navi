@@ -21,6 +21,7 @@ import com.baidu.lbsapi.MKGeneralListener;
 import java.util.WeakHashMap;
 
 import cn.navibeidou.beidou.translucentparent.StatusNavUtils;
+import cn.navibeidou.beidou.pay.WeChatPayManager;
 
 public class ApplicationShared extends Application {
     private static final String AMAP_ROUTE_ACTIVITY = "com.amap.api.navi.AmapRouteActivity";
@@ -45,6 +46,7 @@ public class ApplicationShared extends Application {
         super.onCreate();
         mInstance = this;
         mContext = getApplicationContext();
+        WeChatPayManager.get(this);
         initAmapPrivacyCompliance();
         installAmapRenderExceptionHandler();
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {

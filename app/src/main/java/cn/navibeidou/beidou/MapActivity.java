@@ -70,15 +70,21 @@ import java.util.TimerTask;
 import cn.navibeidou.beidou.Util.Constants;
 import cn.navibeidou.beidou.Util.SpUtil;
 import cn.navibeidou.beidou.Util.TimeStringUtil;
+import cn.navibeidou.beidou.account.UserSession;
 import cn.navibeidou.beidou.toutiao.DislikeDialog;
 import cn.navibeidou.beidou.toutiao.config.TTAdManagerHolder;
 import cn.navibeidou.beidou.translucentparent.StatusNavUtils;
+import cn.navibeidou.beidou.widget.CloudPanoramaWelcomeDialog;
 
 public class MapActivity extends AppCompatActivity implements AMapLocationListener, GeocodeSearch.OnGeocodeSearchListener, View.OnClickListener {
     private static final String TAG = "MapActivity";
     private static final String KEY_LAST_LAT = "map_last_lat";
     private static final String KEY_LAST_LON = "map_last_lon";
     private static final String KEY_LAST_CITY = "map_last_city";
+    private static final String KEY_CLOUD_WELCOME_SHOWN = "cloud_panorama_welcome_shown";
+    private static final int MSG_CLOUD_WELCOME = 300;
+    private static final long CLOUD_WELCOME_DELAY_MS = 5000;
+    private static final long CLOUD_WELCOME_RETRY_DELAY_MS = 1000;
     public BMapManager mBMapManager = null;
     private boolean isHadOpenGame = false;
     private int count = 0;
@@ -100,7 +106,8 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     private static final int FILL_COLOR = Color.argb(10, 0, 0, 180);
     private Context mContext;
     MapView mMapView = null;
-    LinearLayout ll_service, ll_yinsi, ll_feedback, ll_normal, ll_satellite, ll_bus, ll_quanjian, ll_weather_left;
+    View ll_account;
+    LinearLayout ll_vip, ll_service, ll_yinsi, ll_feedback, ll_normal, ll_satellite, ll_bus, ll_quanjian, ll_weather_left;
     LinearLayout tab_explore, tab_cloud, tab_mine;
     AMap aMap;
     RouteSearch routeSearch;
@@ -119,7 +126,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
 
     private ImageView iv_normal, iv_satellite, iv_bus;
     private ImageView iv_tab_explore, iv_tab_cloud, iv_tab_mine;
-    private TextView input_edittext, tv_traffic, tv_poi, tv_weather, tv_vedio, tv_title, tv_metro, tv_north, tv_quanjin, tv_world_panorama, tv_current_location, tv_game, tv_cloud_top;
+    private TextView input_edittext, tv_account_status, tv_traffic, tv_poi, tv_weather, tv_vedio, tv_title, tv_metro, tv_north, tv_quanjin, tv_world_panorama, tv_current_location, tv_game, tv_cloud_top;
     private boolean trafficVisible = false;
     private boolean isEn = false;
     float bearing = 0.0f;  // 地图默认方向
@@ -144,6 +151,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
                     break;
                 case 200:
 //                    showGame();
+                    break;
+                case MSG_CLOUD_WELCOME:
+                    showCloudPanoramaWelcome();
                     break;
                 default:
                     break;
@@ -183,6 +193,35 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         } else {
             Log.d("navi", "TTAdSdk 未初始化，跳过广告SDK请求与加载");
         }
+        scheduleCloudPanoramaWelcomeIfNeeded();
+    }
+
+    /** 首次进入首页5秒后弹出720云景区推荐弹窗，只展示一次。 */
+    private void scheduleCloudPanoramaWelcomeIfNeeded() {
+        if ((Boolean) SpUtil.get(this, KEY_CLOUD_WELCOME_SHOWN, false)) {
+            return;
+        }
+        if (mHandler != null) {
+            mHandler.removeMessages(MSG_CLOUD_WELCOME);
+            mHandler.sendEmptyMessageDelayed(MSG_CLOUD_WELCOME, CLOUD_WELCOME_DELAY_MS);
+        }
+    }
+
+    private void showCloudPanoramaWelcome() {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+        if ((Boolean) SpUtil.get(this, KEY_CLOUD_WELCOME_SHOWN, false)) {
+            return;
+        }
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            if (mHandler != null) {
+                mHandler.sendEmptyMessageDelayed(MSG_CLOUD_WELCOME, CLOUD_WELCOME_RETRY_DELAY_MS);
+            }
+            return;
+        }
+        SpUtil.put(this, KEY_CLOUD_WELCOME_SHOWN, true);
+        CloudPanoramaWelcomeDialog.show(this);
     }
 
     private void privacyCompliance() {
@@ -278,6 +317,9 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
 
     private void initView() {
         input_edittext = findViewById(R.id.input_edittext);
+        ll_account = findViewById(R.id.ll_account);
+        ll_vip = findViewById(R.id.ll_vip);
+        tv_account_status = findViewById(R.id.tv_account_status);
         tv_current_location = findViewById(R.id.tv_current_location);
         ll_service = findViewById(R.id.ll_service);
         ll_yinsi = findViewById(R.id.ll_yinsi);
@@ -291,6 +333,8 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
         iv_satellite = findViewById(R.id.iv_satellite);
         iv_bus = findViewById(R.id.iv_bus);
         ll_normal.setOnClickListener(this);
+        ll_account.setOnClickListener(this);
+        ll_vip.setOnClickListener(this);
         ll_satellite.setOnClickListener(this);
         ll_bus.setOnClickListener(this);
         ll_quanjian.setOnClickListener(this);
@@ -663,6 +707,7 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
             mTTAdNative = null;
         }
         if (mHandler != null) {
+            mHandler.removeMessages(MSG_CLOUD_WELCOME);
             mHandler = null;
         }
     }
@@ -671,11 +716,28 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     @Override
     public void onResume() {
         super.onResume();
+        refreshAccountStatus();
         //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
         if (mMapView != null && !mMapRenderFailed) {
             mMapView.onResume();
         }
         initMap();
+    }
+
+    private void refreshAccountStatus() {
+        if (tv_account_status == null) {
+            return;
+        }
+        UserSession session = new UserSession(this);
+        if (session.isLoggedIn()) {
+            String phone = session.getPhone();
+            String masked = phone.length() == 11
+                    ? phone.substring(0, 3) + "****" + phone.substring(7)
+                    : phone;
+            tv_account_status.setText(masked);
+        } else {
+            tv_account_status.setText("未登录");
+        }
     }
 
     /*private void showPopupWindow() {
@@ -789,6 +851,16 @@ public class MapActivity extends AppCompatActivity implements AMapLocationListen
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.ll_account:
+                if (new UserSession(this).isLoggedIn()) {
+                    startActivity(new Intent(MapActivity.this, AccountActivity.class));
+                } else {
+                    startActivity(new Intent(MapActivity.this, LoginActivity.class));
+                }
+                break;
+            case R.id.ll_vip:
+                startActivity(new Intent(MapActivity.this, VipActivity.class));
+                break;
             case R.id.ll_normal:
                 if (!requireMapAvailable()) {
                     break;

@@ -15,7 +15,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ProtocolActivity extends AppCompatActivity {
-    private static final String PRIVACY_POLICY_URL = "https://www.cjym123.cn/privacy_agentclaw.html";
+    private static final String PRIVACY_POLICY_URL = "https://www.cjym123.cn/privacy_navi.html";
     private Context mContext;
 
     @Override

@@ -28,6 +28,11 @@
     <string name="loginAccount">登录账户</string>
     <string name="registerAccount">注册账户</string>
     <string name="myAccount">我的账户</string>
+    <string name="member_account_section">账户与会员</string>
+    <string name="member_login_entry">账号登录</string>
+    <string name="member_login_subtitle">登录后同步会员状态</string>
+    <string name="vip_entry">导航会员</string>
+    <string name="vip_entry_subtitle">查看会员权益与套餐</string>
     <string name="editTel">请输入手机号</string>
     <string name="editpw">请输入密码</string>
 
@@ -278,6 +283,14 @@
     <string name="cloud_search_placeholder">搜索世界720全景、导览、景区</string>
     <string name="cloud_empty">未找到相关全景</string>
     <string name="world_search_entry">景区</string>
+    <string name="cloud_welcome_title">探索720云景区</string>
+    <string name="cloud_welcome_message">珠穆朗玛与纳木措等精彩全景内容等你发现，进入720云景区沉浸式看世界。</string>
+    <string name="cloud_welcome_more">查看更多内容</string>
+    <string name="cloud_welcome_featured_accessibility">打开珠穆朗玛纳木措720全景</string>
+    <string name="cloud_welcome_recommendation">功能推荐</string>
+    <string name="cloud_welcome_tap_hint">点击图片查看全景</string>
+    <string name="cloud_welcome_source_notice">全景内容将从720云网页加载</string>
+    <string name="cloud_welcome_close">关闭</string>
     <string name="north">定位</string>
     <string name="tab_explore">探索</string>
     <string name="tab_mine">我</string>

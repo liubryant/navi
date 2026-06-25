@@ -22,12 +22,18 @@ android {
             debuggable false
             jniDebuggable false
             renderscriptDebuggable false
+            buildConfigField "String", "API_BASE_URL", '"http://192.168.1.37:8066"'
+            buildConfigField "boolean", "PAYMENT_MOCK_ALLOWED", "true"
+            manifestPlaceholders = [usesCleartextTraffic: "true", ALIPAY_SCHEME: "alipaynavibeidou"]
         }
         release {
             signingConfig signingConfigs.release
             debuggable false
             jniDebuggable false
             renderscriptDebuggable false
+            buildConfigField "String", "API_BASE_URL", '"https://www.cjym123.cn"'
+            buildConfigField "boolean", "PAYMENT_MOCK_ALLOWED", "false"
+            manifestPlaceholders = [usesCleartextTraffic: "true", ALIPAY_SCHEME: "alipaynavibeidou"]
         }
     }
 
@@ -42,8 +48,8 @@ android {
         applicationId "cn.navibeidou.beidou"
         minSdkVersion 29
         targetSdkVersion 33
-        versionCode 39
-        versionName '3.6.2'
+        versionCode 51
+        versionName '3.7.1'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         ndk {
@@ -79,8 +85,9 @@ android {
 
     allprojects {
         repositories {
-            google()
-            jcenter()
+            maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/google/' }
+            maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/jcenter/' }
+            maven { url 'https://mirrors.cloud.tencent.com/nexus/repository/maven-public/' }
         }
     }
 
@@ -129,9 +136,9 @@ dependencies {
     implementation 'com.umeng.umsdk:asms:1.4.1'// 必选
     implementation 'com.umeng.umsdk:apm:1.4.2' // 错误分析升级为独立SDK，看crash数据请一定集成，可选
     implementation 'com.umeng.umsdk:abtest:1.0.0'//使用U-App中ABTest能力，可选
-    implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
+    implementation 'com.tencent.mm.opensdk:wechat-sdk-android:6.8.24@aar'
+    implementation 'com.alipay.sdk:alipaysdk-android:15.8.11@aar'
     //tbs
 //    implementation (name:'GDTSDK.unionNoPlugin.4.290.1160', ext:'aar')
 
 }
-

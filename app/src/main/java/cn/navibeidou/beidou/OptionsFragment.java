@@ -2,6 +2,7 @@ package cn.navibeidou.beidou;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +24,7 @@ import java.util.List;
 import cn.navibeidou.beidou.Util.CommonUtil;
 import cn.navibeidou.beidou.Util.ListAdapter;
 import cn.navibeidou.beidou.Util.ListItem;
+import cn.navibeidou.beidou.account.UserSession;
 
 public class OptionsFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
@@ -49,6 +51,7 @@ public class OptionsFragment extends Fragment {
 //    private TTNativeExpressAd mTTAd;
     private long startTime = 0;
     private boolean mHasShowDownloadActive = false;
+    private UserSession userSession;
 
     public OptionsFragment() {
     }
@@ -94,6 +97,10 @@ public class OptionsFragment extends Fragment {
         mVer.setText(ver);
 
         mData = new LinkedList<ListItem>();
+        userSession = new UserSession(mContext);
+        mData.add(new ListItem(getString(R.string.member_account_section), null, 0));
+        mData.add(new ListItem(getString(R.string.member_login_entry), accountSubtitle(), 1));
+        mData.add(new ListItem(getString(R.string.vip_entry), getString(R.string.vip_entry_subtitle), 1));
 //        mData.add(new ListItem(getResources().getString(R.string.options_tag1), null, 0));
 //        mData.add(new ListItem(getResources().getString(R.string.options_1), getResources().getString(R.string.options_sub1), 1));
         mData.add(new ListItem(getResources().getString(R.string.promot), null, 0));
@@ -120,6 +127,10 @@ public class OptionsFragment extends Fragment {
 //                        startActivity(new Intent(mContext, DeviceInfoActivity.class));
 //                        loadExpressAd("945191419", 450, 300);
 //                        loadInteractionAd("901121435");
+                    } else if (item.getTitle().equals(getString(R.string.member_login_entry))) {
+                        startActivity(new Intent(mContext, userSession.isLoggedIn() ? AccountActivity.class : LoginActivity.class));
+                    } else if (item.getTitle().equals(getString(R.string.vip_entry))) {
+                        startActivity(new Intent(mContext, VipActivity.class));
                     }
                 }
 
@@ -128,6 +139,27 @@ public class OptionsFragment extends Fragment {
         //加载bannerAd
 //        loadBannerAd("945365975");
         return view;
+    }
+
+    private String accountSubtitle() {
+        if (userSession != null && userSession.isLoggedIn()) {
+            String phone = userSession.getPhone();
+            return phone.length() == 11
+                    ? phone.substring(0, 3) + "****" + phone.substring(7)
+                    : phone;
+        }
+        return getString(R.string.member_login_subtitle);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mData != null && mData.size() > 1 && userSession != null) {
+            mData.get(1).setSubTitle(accountSubtitle());
+            if (mAdapter != null) {
+                mAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     @Override
